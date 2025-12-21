@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WhatsApp Wrapped 2025 - Upload</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/src/style.css" />
+</head>
+
+<body class="upload-page">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+
+    <div class="container">
+        <h1>WhatsApp Wrapped</h1>
+        <p class="subtitle">Discover the story behind your chats.</p>
+
+        <div class="upload-card">
+            <label class="drop-zone" id="drop-zone">
+                <svg class="icon" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33 3 3 0 013.758 3.848A3.752 3.752 0 0118 19.5H6.75z">
+                    </path>
+                </svg>
+                <div class="btn-text">Drop your chat file</div>
+                <div class="sub-text">Supports .txt or .zip export</div>
+                <input type="file" id="file-upload" accept=".txt,.zip"
+                    style="position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); border: 0;" />
+            </label>
+        </div>
+
+        <div id="status" class="status">Ready to analyze</div>
+
+        <div class="footer">
+            <strong>100% Private.</strong> Processing happens on your device.
+        </div>
+    </div>
+
+    <script type="module" src="/src/upload.ts"></script>
+</body>
+
+</html>

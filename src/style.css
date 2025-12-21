@@ -1,13 +1,28 @@
 :root {
+  /* WhatsApp Colors */
   --whatsapp-green: #25D366;
   --whatsapp-dark: #128C7E;
   --whatsapp-teal: #075E54;
+
+  /* Background Colors */
   --dark-bg: #111b21;
   --darker-bg: #0b141a;
+  --bg-gradient-start: #0f2027;
+  --bg-gradient-end: #203a43;
+
+  /* Glassmorphism */
+  --glass-bg: rgba(255, 255, 255, 0.05);
+  --glass-border: rgba(255, 255, 255, 0.1);
+
+  /* Text Colors */
   --text-primary: #e9edef;
   --text-secondary: #8696a0;
 
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  /* Aliases for consistency with ported code */
+  --wa-green: var(--whatsapp-green);
+  --wa-teal: var(--whatsapp-dark);
+
+  font-family: "Outfit", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   color: var(--text-primary);
   background-color: var(--dark-bg);
 }
@@ -789,4 +804,189 @@ body {
   font-size: 1.2rem;
   opacity: 0;
   visibility: hidden;
+}
+/* --- Upload View Styles --- */
+
+/* Upload Page specific body override if needed via class */
+body.upload-page {
+  background: radial-gradient(
+      circle at top right,
+      #10302b,
+      #0b141a 60%
+  );
+  font-family: "Outfit", sans-serif;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Decorative Background Elements */
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  z-index: -1;
+  opacity: 0.4;
+  animation: floatOrb 10s infinite ease-in-out;
+}
+
+.orb-1 {
+  width: 400px;
+  height: 400px;
+  background: var(--whatsapp-dark);
+  top: -100px;
+  right: -100px;
+}
+
+.orb-2 {
+  width: 300px;
+  height: 300px;
+  background: var(--whatsapp-green);
+  bottom: -50px;
+  left: -50px;
+  animation-delay: 2s;
+}
+
+@keyframes floatOrb {
+  0%,
+  100% {
+      transform: translate(0, 0);
+  }
+  50% {
+      transform: translate(20px, 30px);
+  }
+}
+
+.container {
+  width: 100%;
+  max-width: 480px;
+  padding: 24px;
+  text-align: center;
+  z-index: 10;
+}
+
+/* Header */
+.container h1 {
+  font-size: 32px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  background: linear-gradient(135deg, #fff 0%, #25d366 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.container p.subtitle {
+  font-size: 16px;
+  color: var(--text-secondary);
+  margin-bottom: 40px;
+  font-weight: 300;
+}
+
+/* Upload Card */
+.upload-card {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(20px);
+  border-radius: 24px;
+  padding: 4px; /* Padding for the border effect */
+  transition:
+      transform 0.3s ease,
+      box-shadow 0.3s ease;
+}
+
+.upload-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  border-color: rgba(37, 211, 102, 0.3);
+}
+
+.drop-zone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+  border: 2px dashed rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.drop-zone:hover,
+.drop-zone.drag-active {
+  border-color: var(--whatsapp-green);
+  background: rgba(37, 211, 102, 0.05);
+}
+
+.drop-zone .icon {
+  width: 56px;
+  height: 56px;
+  margin-bottom: 24px;
+  color: var(--text-secondary);
+  transition: color 0.3s;
+}
+
+.drop-zone:hover .icon {
+  color: var(--whatsapp-green);
+}
+
+.btn-text {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #fff;
+}
+
+.sub-text {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+/* Status */
+.status {
+  margin-top: 24px;
+  font-size: 14px;
+  font-weight: 500;
+  min-height: 24px;
+  opacity: 0;
+  transition: opacity 0.3s;
+  color: var(--text-primary);
+}
+.status.visible {
+  opacity: 1;
+}
+.status.success {
+  color: var(--whatsapp-green);
+}
+.status.error {
+  color: #ff5f5f;
+}
+.status.process {
+  color: var(--whatsapp-green);
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% {
+      opacity: 0.6;
+  }
+  50% {
+      opacity: 1;
+  }
+  100% {
+      opacity: 0.6;
+  }
+}
+
+/* Footer */
+.footer {
+  margin-top: 48px;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.3);
+}
+.footer strong {
+  color: rgba(255, 255, 255, 0.5);
+  font-weight: 500;
 }

@@ -1,6 +1,7 @@
 import './style.css'
 import { StoryController } from './core/StoryController';
 import { wrappedData } from './data';
+import { decodeAndDecompress } from './utils/compression';
 import { IntroSlide } from './slides/IntroSlide';
 import { TotalsSlide } from './slides/TotalsSlide';
 import { RankingSlide } from './slides/RankingSlide';
@@ -12,22 +13,50 @@ import { PeakDaySlide } from './slides/PeakDaySlide';
 import { SilenceStreakSlide } from './slides/SilenceStreakSlide';
 import { ActivityStreakSlide } from './slides/ActivityStreakSlide';
 import { OutroSlide } from './slides/OutroSlide';
+import type { WrappedData } from './data';
 
-// Initialize Controller
-const story = new StoryController('app');
+// initialize
+const app = document.querySelector<HTMLDivElement>('#app')!;
+let data: WrappedData | null = null;
 
-// Add Slides
-story.addSlide(new IntroSlide(wrappedData));
-story.addSlide(new TotalsSlide(wrappedData));
-story.addSlide(new RankingSlide(wrappedData));
-story.addSlide(new MostFrequentMessageSlide(wrappedData));
-story.addSlide(new TopWordsSlide(wrappedData));
-story.addSlide(new EmojiSlide(wrappedData));
-story.addSlide(new MonthlyChartSlide(wrappedData));
-story.addSlide(new PeakDaySlide(wrappedData));
-story.addSlide(new SilenceStreakSlide(wrappedData));
-story.addSlide(new ActivityStreakSlide(wrappedData));
-story.addSlide(new OutroSlide(wrappedData));
+// 1. Try to get data from Hash
+const hash = window.location.hash.substring(1);
+if (hash) {
+  try {
+    data = decodeAndDecompress(hash);
+    console.log("✅ Data loaded from URL Hash", data);
+  } catch (e) {
+    console.error("❌ Failed to decode hash", e);
+  }
+}
 
-// Start
-story.start();
+// 2. If no hash, check for Dev Mode or Redirect
+if (!data) {
+  if (import.meta.env.DEV) {
+    console.warn("⚠️ No Hash found. Using Dummy Data (Dev Mode)");
+    data = wrappedData;
+  } else {
+    // Production: Redirect to Upload
+    console.log("🔄 No data found. Redirecting to upload...");
+    window.location.href = '/upload.html';
+  }
+}
+
+if (data) {
+  const story = new StoryController('app');
+
+  story.addSlide(new IntroSlide(data));
+  story.addSlide(new TotalsSlide(data));
+  story.addSlide(new RankingSlide(data));
+  story.addSlide(new MostFrequentMessageSlide(data));
+  story.addSlide(new TopWordsSlide(data));
+  story.addSlide(new EmojiSlide(data));
+  story.addSlide(new MonthlyChartSlide(data));
+  story.addSlide(new PeakDaySlide(data));
+  story.addSlide(new SilenceStreakSlide(data));
+  story.addSlide(new ActivityStreakSlide(data));
+  story.addSlide(new OutroSlide(data));
+
+  story.start();
+}
+
