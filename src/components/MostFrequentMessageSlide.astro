@@ -11,16 +11,18 @@ import { wrappedData } from "../data";
     <div class="message-container">
         <div class="message-bubble">
             <div class="msg-header">
-                <span class="author"
+                <span class="author" data-field="most_frequent_message.author"
                     >{wrappedData.most_frequent_message.author}</span
                 >
             </div>
-            <div class="msg-content">
+            <div class="msg-content" data-field="most_frequent_message.content">
                 {wrappedData.most_frequent_message.content}
             </div>
             <div class="msg-meta">
                 <span class="time"
-                    >Enviado {wrappedData.most_frequent_message.count} veces</span
+                    >Enviado <span data-field="most_frequent_message.count"
+                        >{wrappedData.most_frequent_message.count}</span
+                    > veces</span
                 >
                 <span class="checks">✓✓</span>
             </div>

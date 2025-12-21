@@ -8,9 +8,9 @@ import { wrappedData } from "../data";
         <h2>Y emojis que no dejaron de aparecer...</h2>
     </div>
 
-    <div class="emoji-podium">
+    <div class="emoji-podium" data-list="top_emojis">
         {
-            /* Order: 2nd, 1st, 3rd. Assumes we have at least 3 items, otherwise fallback logic needed but dataset has 3. */
+            /* Order: 2nd, 1st, 3rd. */
             [
                 wrappedData.top_emojis[1],
                 wrappedData.top_emojis[0],
@@ -18,7 +18,6 @@ import { wrappedData } from "../data";
             ]
                 .filter(Boolean)
                 .map((item) => {
-                    // Find original index to stick to rank
                     const rank = wrappedData.top_emojis.indexOf(item) + 1;
                     return (
                         <div class={`emoji-item rank-${rank}`}>
@@ -82,7 +81,7 @@ import { wrappedData } from "../data";
         margin-top: 100px;
     }
 
-    .emoji-item {
+    :global(.emoji-slide .emoji-item) {
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -91,29 +90,29 @@ import { wrappedData } from "../data";
         transition: transform 0.3s;
     }
 
-    .rank-1 {
+    :global(.emoji-slide .rank-1) {
         transform: scale(1.6);
         order: 2;
         z-index: 10;
         margin-bottom: 2rem;
     }
-    .rank-2 {
+    :global(.emoji-slide .rank-2) {
         transform: scale(1.2);
         order: 1;
         opacity: 0.8;
     }
-    .rank-3 {
+    :global(.emoji-slide .rank-3) {
         transform: scale(1.2);
         order: 3;
         opacity: 0.8;
     }
 
-    .emoji-char {
+    :global(.emoji-slide .emoji-char) {
         font-size: 5rem;
         filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.2));
     }
 
-    .emoji-count {
+    :global(.emoji-slide .emoji-count) {
         font-size: 1.2rem;
         background: #25d366;
         padding: 5px 15px;

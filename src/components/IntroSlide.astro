@@ -5,8 +5,10 @@ import { wrappedData } from "../data";
 
 <Slide class="intro-slide">
     <div class="year-container">
-        <h2 class="pre-title">El 2025 de</h2>
-        <h1 class="group-name">{wrappedData.group_name}</h1>
+        <h2 class="pre-title">El {wrappedData.year} de</h2>
+        <h1 class="group-name" data-field="group_name">
+            {wrappedData.group_name}
+        </h1>
         <h2 class="post-title">WHATSAPP WRAPPED</h2>
         <h3 class="story-subtitle">Este año hubo mucho que contar...</h3>
     </div>
@@ -38,6 +40,13 @@ import { wrappedData } from "../data";
             { scale: 0 },
             { scale: 1, stagger: 0.2, duration: 0.8, ease: "back.out" },
         );
+    });
+
+    // Listen for dynamic data injection
+    document.addEventListener("wrapped-data-ready", (e: any) => {
+        const data = e.detail;
+        const groupEl = slide?.querySelector('[data-field="group_name"]');
+        if (groupEl) groupEl.textContent = data.group_name;
     });
 </script>
 

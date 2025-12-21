@@ -14,11 +14,11 @@ const fmt = (dStr: string) => {
     <div class="content">
         <h2 class="sub-title">Desde el</h2>
         <div class="dates">
-            <span class="highlight"
+            <span class="highlight" data-field="longest_activity_streak.from"
                 >{fmt(wrappedData.longest_activity_streak.from)}</span
             >
             al
-            <span class="highlight"
+            <span class="highlight" data-field="longest_activity_streak.to"
                 >{fmt(wrappedData.longest_activity_streak.to)}</span
             >
         </div>
@@ -27,7 +27,10 @@ const fmt = (dStr: string) => {
 
         <div class="streak-badge">
             <span class="fire">🔥</span>
-            <span>{wrappedData.longest_activity_streak.days} días seguidos</span
+            <span
+                ><span data-field="longest_activity_streak.days"
+                    >{wrappedData.longest_activity_streak.days}</span
+                > días seguidos</span
             >
         </div>
     </div>

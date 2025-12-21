@@ -12,11 +12,25 @@ const month = monthNames[dateObj.getUTCMonth()];
 
     <div class="calendar-reveal">
         <div class="calendar-icon">
-            <div class="cal-month">{month}</div>
-            <div class="cal-day">{day}</div>
+            <div
+                class="cal-month"
+                data-field="peak_activity_day.date"
+                data-format="month"
+            >
+                {month}
+            </div>
+            <div
+                class="cal-day"
+                data-field="peak_activity_day.date"
+                data-format="day"
+            >
+                {day}
+            </div>
         </div>
         <div class="msg-count">
-            {wrappedData.peak_activity_day.messages} mensajes
+            <span data-field="peak_activity_day.messages"
+                >{wrappedData.peak_activity_day.messages}</span
+            > mensajes
         </div>
     </div>
 </Slide>

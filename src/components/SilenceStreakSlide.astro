@@ -14,11 +14,11 @@ const fmt = (dStr: string) => {
     <div class="content">
         <h2>Y aunque desde el</h2>
         <div class="dates">
-            <span class="highlight"
+            <span class="highlight" data-field="longest_silence_streak.from"
                 >{fmt(wrappedData.longest_silence_streak.from)}</span
             >
             al
-            <span class="highlight"
+            <span class="highlight" data-field="longest_silence_streak.to"
                 >{fmt(wrappedData.longest_silence_streak.to)}</span
             >
         </div>
@@ -26,7 +26,9 @@ const fmt = (dStr: string) => {
 
         <div class="emoji-reaction">🦗</div>
         <div class="days-count">
-            {wrappedData.longest_silence_streak.days} días de silencio
+            <span data-field="longest_silence_streak.days"
+                >{wrappedData.longest_silence_streak.days}</span
+            > días de silencio
         </div>
     </div>
 </Slide>

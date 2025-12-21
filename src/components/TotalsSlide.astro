@@ -7,21 +7,21 @@ import { wrappedData } from "../data";
     <div class="stat-container">
         <div class="stat-item s1">
             <h2 class="label">Mensajes</h2>
-            <div class="value big">
+            <div class="value big" data-field="totals.messages">
                 {wrappedData.totals.messages.toLocaleString()}
             </div>
         </div>
 
         <div class="stat-item s2">
             <h2 class="label">Palabras</h2>
-            <div class="value medium">
+            <div class="value medium" data-field="totals.words">
                 {wrappedData.totals.words.toLocaleString()}
             </div>
         </div>
 
         <div class="stat-item s3">
             <h2 class="label">Caracteres</h2>
-            <div class="value small">
+            <div class="value small" data-field="totals.characters">
                 {wrappedData.totals.characters.toLocaleString()}
             </div>
         </div>
@@ -34,7 +34,7 @@ import { wrappedData } from "../data";
 
     slide?.addEventListener("slide-enter", () => {
         gsap.fromTo(
-            ".stat-item",
+            slide.querySelectorAll(".stat-item"),
             { opacity: 0, y: 50 },
             { opacity: 1, y: 0, stagger: 0.2, duration: 0.8, ease: "back.out" },
         );

@@ -29,7 +29,7 @@ const maxCount = Math.max(...sortedCounts);
 <Slide class="monthly-slide">
     <h2>Cada mes tuvo sus propias historias</h2>
 
-    <div class="chart-container">
+    <div class="chart-container" data-chart="monthly">
         {
             sortedMonths.map((monthIndex, i) => (
                 <div class="bar-wrapper">
@@ -48,8 +48,12 @@ const maxCount = Math.max(...sortedCounts);
 
     <div class="peak-month-highlight">
         <p>
-            En <span class="highlight">{peakMonthName}</span> el chat explotó con
-            <span class="highlight">{peakMonthCount}</span> mensajes 🔥
+            En <span class="highlight" data-field="peak_month_name"
+                >{peakMonthName}</span
+            > el chat explotó con
+            <span class="highlight" data-field="peak_month_count"
+                >{peakMonthCount}</span
+            > mensajes 🔥
         </p>
     </div>
 </Slide>
@@ -107,7 +111,7 @@ const maxCount = Math.max(...sortedCounts);
 </script>
 
 <style>
-    h2 {
+    .monthly-slide h2 {
         opacity: 0;
         visibility: hidden;
         text-align: center;
@@ -130,7 +134,7 @@ const maxCount = Math.max(...sortedCounts);
         padding-bottom: 10px;
     }
 
-    .bar-wrapper {
+    :global(.monthly-slide .bar-wrapper) {
         flex: 1;
         height: 100%;
         display: flex;
@@ -139,7 +143,7 @@ const maxCount = Math.max(...sortedCounts);
         align-items: center;
     }
 
-    .bar {
+    :global(.monthly-slide .bar) {
         width: 80%;
         background: linear-gradient(
             to top,
@@ -151,13 +155,13 @@ const maxCount = Math.max(...sortedCounts);
         box-shadow: 0 0 10px rgba(37, 211, 102, 0.3);
     }
 
-    .month-label {
+    :global(.monthly-slide .month-label) {
         font-size: 0.6rem;
         color: rgba(255, 255, 255, 0.7);
         margin-top: 10px;
     }
 
-    .peak-bar {
+    :global(.monthly-slide .peak-bar) {
         background: var(--accent-neon);
         box-shadow: 0 0 15px var(--accent-neon);
     }

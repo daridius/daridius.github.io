@@ -6,7 +6,7 @@ import { wrappedData } from "../data";
 <Slide class="top-words-slide">
     <h2 class="title">Palabras que no pararon de usar...</h2>
 
-    <div class="word-cloud-pills">
+    <div class="word-cloud-pills" data-list="top_words">
         {
             wrappedData.top_words.map((item, index) => (
                 <div
@@ -75,7 +75,7 @@ import { wrappedData } from "../data";
         padding: 0 2rem;
     }
 
-    .word-pill {
+    :global(.top-words-slide .word-pill) {
         background: rgba(255, 255, 255, 0.08);
         border: 1px solid rgba(255, 255, 255, 0.1);
         border-radius: 50px;
@@ -90,18 +90,18 @@ import { wrappedData } from "../data";
         transform: scale(var(--scale));
     }
 
-    .word-pill:hover {
+    :global(.top-words-slide .word-pill:hover) {
         background: rgba(255, 255, 255, 0.15);
         border-color: var(--whatsapp-green);
     }
 
-    .word {
+    :global(.top-words-slide .word) {
         font-weight: 700;
         color: white;
         font-size: 1.5rem;
     }
 
-    .count-badge {
+    :global(.top-words-slide .count-badge) {
         font-size: 0.9rem;
         background: var(--whatsapp-green);
         color: #000;
@@ -111,16 +111,16 @@ import { wrappedData } from "../data";
     }
 
     /* Highlight top words */
-    .rank-1 .word {
+    :global(.top-words-slide .rank-1 .word) {
         color: var(--accent-neon);
         font-size: 2rem;
     }
-    .rank-1 {
+    :global(.top-words-slide .rank-1) {
         border-color: var(--accent-neon);
         background: rgba(37, 211, 102, 0.1);
     }
 
-    .rank-2 .word {
+    :global(.top-words-slide .rank-2 .word) {
         font-size: 1.8rem;
     }
 </style>

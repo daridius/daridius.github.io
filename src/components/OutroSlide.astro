@@ -1,12 +1,25 @@
 ---
 import Slide from "./Slide.astro";
+import { wrappedData } from "../data";
 ---
 
 <Slide class="outro-slide">
     <div class="content">
-        <h1>En fin fue un gran año...</h1>
+        <h1>
+            ¡Qué gran año para el grupo <span data-field="group_name"
+                >{wrappedData.group_name}</span
+            >!
+        </h1>
         <div class="emoji">🥳</div>
-        <p>Nos vemos en 2026</p>
+        <p>Nos vemos en 2026 con más historias.</p>
+
+        <div class="actions" style="margin-top: 40px;">
+            <a
+                href="/upload"
+                style="background: var(--whatsapp-green); color: black; padding: 12px 24px; border-radius: 50px; text-decoration: none; font-weight: bold; font-size: 1.1rem;"
+                >Haz tu propio Wrapped</a
+            >
+        </div>
     </div>
 </Slide>
 
