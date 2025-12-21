@@ -26,42 +26,67 @@ interface Message {
     content: string;
 }
 
-// Regex patterns to match various WhatsApp timestamp formats
-// 1. [DD/MM/YYYY, HH:mm:ss] Author: Message (iOS)
-// 2. DD/MM/YYYY HH:mm - Author: Message (Android common)
-// 3. M/D/YY, H:mm AM/PM - Author: Message (US formats)
 const TIMESTAMP_REGEXES = [
-    /^\[?(\d{1,2})[./-](\d{1,2})[./-](\d{2,4}),?\s+(\d{1,2}):(\d{2}):?(\d{2})?\]?[\s\u200e]*-?[\s\u200e]*([^:]+): (.+)/, // DD/MM/YYYY
-    /^(\d{1,2})\/(\d{1,2})\/(\d{2,4}),\s+(\d{1,2}):(\d{2})\u202f(AM|PM)\s-\s([^:]+): (.+)/i // US M/D/YY AM/PM
+    // 1. M/D/YY, H:mm AM/PM - Author: Message (Android/US)
+    // Priority to AM/PM to avoid misattribution to author name
+    /^(\d{1,2})[./](\d{1,2})[./](\d{2,4}),?\s+(\d{1,2}):(\d{2})[\s\u202f]*(AM|PM|am|pm)?[\s\u200e]*-?[\s\u200e]*([^:]+): (.+)/i,
+    // 2. [DD/MM/YYYY, HH:mm:ss] Author: Message (iOS)
+    /^\[?(\d{1,2})[./-](\d{1,2})[./-](\d{2,4}),?\s+(\d{1,2}):(\d{2}):?(\d{2})?\]?[\s\u200e]*-?[\s\u200e]*([^:]+): (.+)/
+];
+
+const IGNORE_PATTERNS = [
+    /Messages and calls are end-to-end encrypted/i,
+    /Mensajes y llamadas están cifrados de extremo a extremo/i,
+    /<Media omitted>/i,
+    /<Archivo omitido>/i,
+    /<Multimedia omitido>/i,
+    /multimedia omitida/i,
+    /This message was edited/i,
+    /Este mensaje fue editado/i,
+    /You deleted this message/i,
+    /Eliminaste este mensaje/i,
+    /deleted this message/i,
+    /eliminó este mensaje/i,
+    /created group/i,
+    /creó el grupo/i,
+    /added you/i,
+    /te agregó/i,
+    /changed this group's icon/i,
+    /cambió el icono de este grupo/i,
+    /changed the group description/i,
+    /cambió la descripción del grupo/i,
+    /missed voice call/i,
+    /perdiste una llamada/i,
+    /missed video call/i,
+    /perdiste una videollamada/i,
+    /Waiting for this message/i,
+    /Esperando este mensaje/i
 ];
 
 function parseLine(line: string): Message | null {
-    for (const regex of TIMESTAMP_REGEXES) {
-        const match = line.match(regex);
-        if (match) {
-            // Handle the two regex cases separately or unify them
-            // Case 1: DD/MM/YYYY (European/South American common)
-            if (regex.toString().includes('PM')) {
-                // Case 2: US Format M/D/YY AM/PM
-                // Groups: 1=M, 2=D, 3=Y, 4=H, 5=m, 6=AM/PM, 7=Author, 8=Msg
-                let year = parseInt(match[3]);
-                if (year < 100) year += 2000;
-                let hour = parseInt(match[4]);
-                if (match[6].toUpperCase() === 'PM' && hour < 12) hour += 12;
-                else if (match[6].toUpperCase() === 'AM' && hour === 12) hour = 0;
+    // Priority 1: US/Android Format with AM/PM
+    const ampmMatch = line.match(TIMESTAMP_REGEXES[0]);
+    if (ampmMatch) {
+        let year = parseInt(ampmMatch[3]);
+        if (year < 100) year += 2000;
+        let hour = parseInt(ampmMatch[4]);
+        const ampm = ampmMatch[6]?.toUpperCase();
+        if (ampm === 'PM' && hour < 12) hour += 12;
+        else if (ampm === 'AM' && hour === 12) hour = 0;
 
-                const date = new Date(year, parseInt(match[1]) - 1, parseInt(match[2]), hour, parseInt(match[5]));
-                return { date, author: match[7].trim(), content: match[8].trim() };
-            } else {
-                // Case 1: Standard [DD/MM/YYYY, HH:mm:ss]
-                // Groups: 1=D, 2=M, 3=Y, 4=H, 5=m, 6=s(opt), 7=Author, 8=Msg
-                let year = parseInt(match[3]);
-                if (year < 100) year += 2000;
-                const date = new Date(year, parseInt(match[2]) - 1, parseInt(match[1]), parseInt(match[4]), parseInt(match[5]));
-                return { date, author: match[7].trim(), content: match[8].trim() };
-            }
-        }
+        const date = new Date(year, parseInt(ampmMatch[1]) - 1, parseInt(ampmMatch[2]), hour, parseInt(ampmMatch[5]));
+        return { date, author: ampmMatch[7].trim(), content: ampmMatch[8].trim() };
     }
+
+    // Priority 2: Standard/iOS Format
+    const stdMatch = line.match(TIMESTAMP_REGEXES[1]);
+    if (stdMatch) {
+        let year = parseInt(stdMatch[3]);
+        if (year < 100) year += 2000;
+        const date = new Date(year, parseInt(stdMatch[2]) - 1, parseInt(stdMatch[1]), parseInt(stdMatch[4]), parseInt(stdMatch[5]));
+        return { date, author: stdMatch[7].trim(), content: stdMatch[8].trim() };
+    }
+
     return null;
 }
 
@@ -69,10 +94,16 @@ export function parseChat(chatContent: string): WrappedData {
     const lines = chatContent.split(/\r?\n/);
     const messages: Message[] = [];
 
+    let groupName = "WhatsApp Group";
+
     // Basic parsing
     lines.forEach(line => {
-        // Skip system messages or encrytion notices usually
-        if (line.includes('Messages and calls are end-to-end encrypted') || line.includes('created group') || line.includes('added you')) return;
+        // Detect group name from creation message
+        const creationMatch = line.match(/(?:created group|creó el grupo) "(.+)"/i);
+        if (creationMatch) groupName = creationMatch[1];
+
+        // Skip system messages or noisy content
+        if (IGNORE_PATTERNS.some(p => p.test(line))) return;
 
         // Attempt parsing
         const msg = parseLine(line);
@@ -281,7 +312,7 @@ export function parseChat(chatContent: string): WrappedData {
 
     return {
         year: wrappedYear,
-        group_name: "WhatsApp Group", // No easy way to get group name from export filename inside text content usually
+        group_name: groupName,
         totals: {
             messages: totalMessages,
             words: totalWords,
