@@ -5,9 +5,10 @@ import { wrappedData } from "../data";
 
 <Slide class="intro-slide">
     <div class="year-container">
-        <h2 class="pre-title">Tu WhatsApp</h2>
-        <h1 class="year">{wrappedData.year}</h1>
-        <h2 class="post-title">MESSAGES WRAPPED</h2>
+        <h2 class="pre-title">El 2025 de</h2>
+        <h1 class="group-name">{wrappedData.group_name}</h1>
+        <h2 class="post-title">WHATSAPP WRAPPED</h2>
+        <h3 class="story-subtitle">Este año hubo mucho que contar...</h3>
     </div>
     <div class="decorations">
         <span class="bubble b1" style="--d: 1s"></span>
@@ -16,10 +17,36 @@ import { wrappedData } from "../data";
     </div>
 </Slide>
 
+<script>
+    import { gsap } from "gsap";
+    const slide = document.querySelector(".intro-slide");
+
+    slide?.addEventListener("slide-enter", () => {
+        gsap.fromTo(
+            ".year-container",
+            { scale: 0.8, autoAlpha: 0 },
+            {
+                scale: 1,
+                autoAlpha: 1,
+                duration: 1,
+                ease: "slow(0.7, 0.7, false)",
+            },
+        );
+
+        gsap.fromTo(
+            ".bubble",
+            { scale: 0 },
+            { scale: 1, stagger: 0.2, duration: 0.8, ease: "back.out" },
+        );
+    });
+</script>
+
 <style>
     .year-container {
         text-align: center;
         z-index: 2;
+        opacity: 0;
+        visibility: hidden;
     }
 
     .pre-title,
@@ -32,8 +59,8 @@ import { wrappedData } from "../data";
         text-transform: uppercase;
     }
 
-    .year {
-        font-size: 8rem;
+    .group-name {
+        font-size: 4rem; /* Smaller than 8rem to fit text */
         font-weight: 800;
         margin: 0.5rem 0;
         background: linear-gradient(
@@ -43,8 +70,16 @@ import { wrappedData } from "../data";
         );
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
-        line-height: 1;
+        line-height: 1.1;
         filter: drop-shadow(0 0 20px rgba(37, 211, 102, 0.3));
+        padding: 0 1rem;
+    }
+
+    .story-subtitle {
+        font-size: 1.2rem;
+        margin-top: 2rem;
+        font-style: italic;
+        opacity: 0.8;
     }
 
     .decorations {
@@ -66,6 +101,7 @@ import { wrappedData } from "../data";
         );
         animation: float 6s ease-in-out infinite;
         animation-delay: var(--d);
+        opacity: 0;
     }
 
     .b1 {

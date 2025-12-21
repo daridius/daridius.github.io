@@ -1,0 +1,85 @@
+---
+import Slide from "./Slide.astro";
+import { wrappedData } from "../data";
+---
+
+<Slide class="totals-slide">
+    <div class="stat-container">
+        <div class="stat-item s1">
+            <h2 class="label">Mensajes</h2>
+            <div class="value big">
+                {wrappedData.totals.messages.toLocaleString()}
+            </div>
+        </div>
+
+        <div class="stat-item s2">
+            <h2 class="label">Palabras</h2>
+            <div class="value medium">
+                {wrappedData.totals.words.toLocaleString()}
+            </div>
+        </div>
+
+        <div class="stat-item s3">
+            <h2 class="label">Caracteres</h2>
+            <div class="value small">
+                {wrappedData.totals.characters.toLocaleString()}
+            </div>
+        </div>
+    </div>
+</Slide>
+
+<script>
+    import { gsap } from "gsap";
+    const slide = document.querySelector(".totals-slide");
+
+    slide?.addEventListener("slide-enter", () => {
+        gsap.fromTo(
+            ".stat-item",
+            { opacity: 0, y: 50 },
+            { opacity: 1, y: 0, stagger: 0.2, duration: 0.8, ease: "back.out" },
+        );
+    });
+</script>
+
+<style>
+    .stat-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 2rem;
+        width: 100%;
+    }
+
+    .stat-item {
+        text-align: center;
+        opacity: 0;
+    }
+
+    .label {
+        font-weight: 300;
+        color: var(--text-secondary);
+        font-size: 1.2rem;
+        margin: 0;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+    }
+
+    .value {
+        font-weight: 800;
+        color: white;
+        line-height: 1;
+    }
+
+    .value.big {
+        font-size: 5rem;
+        color: var(--whatsapp-green);
+    }
+    .value.medium {
+        font-size: 4rem;
+        color: #4ecdc4;
+    }
+    .value.small {
+        font-size: 3rem;
+        color: #ff6b6b;
+    }
+</style>

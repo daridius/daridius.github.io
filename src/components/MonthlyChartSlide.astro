@@ -1,0 +1,180 @@
+---
+import Slide from "./Slide.astro";
+import { wrappedData, monthNames } from "../data";
+
+// Convert record to array of [month, count] entries
+const entries = Object.entries(wrappedData.messages_per_month).map(([k, v]) => [
+    Number(k),
+    v,
+]);
+// Sort by month number
+entries.sort((a, b) => a[0] - b[0]);
+
+// Find peak month
+let peakMonthIndex = 0;
+let peakMonthCount = 0;
+entries.forEach(([m, count]) => {
+    if (count > peakMonthCount) {
+        peakMonthCount = count;
+        peakMonthIndex = m;
+    }
+});
+const peakMonthName = monthNames[peakMonthIndex - 1];
+
+const sortedMonths = entries.map((e) => e[0]);
+const sortedCounts = entries.map((e) => e[1]);
+const maxCount = Math.max(...sortedCounts);
+---
+
+<Slide class="monthly-slide">
+    <h2>Cada mes tuvo sus propias historias</h2>
+
+    <div class="chart-container">
+        {
+            sortedMonths.map((monthIndex, i) => (
+                <div class="bar-wrapper">
+                    <div
+                        class={`bar ${monthIndex === peakMonthIndex ? "peak-bar" : ""}`}
+                        style={`height: ${(sortedCounts[i] / maxCount) * 100}%;`}
+                        data-height={`${(sortedCounts[i] / maxCount) * 100}%`}
+                    />
+                    <div class="month-label">
+                        {monthNames[monthIndex - 1].substring(0, 3)}
+                    </div>
+                </div>
+            ))
+        }
+    </div>
+
+    <div class="peak-month-highlight">
+        <p>
+            En <span class="highlight">{peakMonthName}</span> el chat explotó con
+            <span class="highlight">{peakMonthCount}</span> mensajes 🔥
+        </p>
+    </div>
+</Slide>
+
+<script>
+    import { gsap } from "gsap";
+    const slide = document.querySelector(".monthly-slide");
+
+    slide?.addEventListener("slide-enter", () => {
+        const title = slide.querySelector("h2");
+        const chart = slide.querySelector(".chart-container");
+        const bars = slide.querySelectorAll(".bar");
+        const highlight = slide.querySelector(".peak-month-highlight");
+
+        if (title) {
+            gsap.fromTo(
+                title,
+                { autoAlpha: 0, y: -50 },
+                { autoAlpha: 1, y: 0, duration: 1 },
+            );
+        }
+
+        if (chart) {
+            gsap.to(chart, { autoAlpha: 1, duration: 0.5 });
+        }
+
+        if (bars.length) {
+            gsap.fromTo(
+                bars,
+                { height: 0 },
+                {
+                    height: (i, t) => t.dataset.height,
+                    stagger: 0.05,
+                    duration: 1.2,
+                    ease: "power2.out",
+                    delay: 0.5,
+                },
+            );
+        }
+
+        if (highlight) {
+            gsap.fromTo(
+                highlight,
+                { autoAlpha: 0, y: 20 },
+                {
+                    autoAlpha: 1,
+                    y: 0,
+                    duration: 1,
+                    delay: 1.5,
+                    ease: "power2.out",
+                },
+            );
+        }
+    });
+</script>
+
+<style>
+    h2 {
+        opacity: 0;
+        visibility: hidden;
+        text-align: center;
+        position: absolute;
+        top: 15%;
+        width: 80%;
+    }
+
+    .chart-container {
+        display: flex;
+        align-items: flex-end;
+        gap: 5px;
+        height: 40%;
+        width: 90%;
+        max-width: 600px;
+        opacity: 0;
+        visibility: hidden;
+        margin-top: 50px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        padding-bottom: 10px;
+    }
+
+    .bar-wrapper {
+        flex: 1;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        align-items: center;
+    }
+
+    .bar {
+        width: 80%;
+        background: linear-gradient(
+            to top,
+            var(--whatsapp-green),
+            var(--accent-neon)
+        );
+        border-radius: 5px 5px 0 0;
+        min-height: 2px;
+        box-shadow: 0 0 10px rgba(37, 211, 102, 0.3);
+    }
+
+    .month-label {
+        font-size: 0.6rem;
+        color: rgba(255, 255, 255, 0.7);
+        margin-top: 10px;
+    }
+
+    .peak-bar {
+        background: var(--accent-neon);
+        box-shadow: 0 0 15px var(--accent-neon);
+    }
+
+    .peak-month-highlight {
+        position: absolute;
+        bottom: 15%;
+        text-align: center;
+        width: 80%;
+        font-size: 1.2rem;
+        opacity: 0;
+        visibility: hidden;
+    }
+
+    .highlight {
+        color: var(--accent-neon);
+        font-weight: 800;
+        font-size: 1.4rem;
+    }
+</style>

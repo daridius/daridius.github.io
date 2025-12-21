@@ -1,0 +1,160 @@
+---
+import Slide from "./Slide.astro";
+import { wrappedData } from "../data";
+---
+
+<Slide class="most-frequent-msg-slide">
+    <div class="intro">
+        <h2>Hubo un mensaje que se repitió hasta el cansancio...</h2>
+    </div>
+
+    <div class="message-container">
+        <div class="message-bubble">
+            <div class="msg-header">
+                <span class="author"
+                    >{wrappedData.most_frequent_message.author}</span
+                >
+            </div>
+            <div class="msg-content">
+                {wrappedData.most_frequent_message.content}
+            </div>
+            <div class="msg-meta">
+                <span class="time"
+                    >Enviado {wrappedData.most_frequent_message.count} veces</span
+                >
+                <span class="checks">✓✓</span>
+            </div>
+        </div>
+        <div class="badge">SPAM DEL AÑO</div>
+    </div>
+</Slide>
+
+<script>
+    import { gsap } from "gsap";
+    const slide = document.querySelector(".most-frequent-msg-slide");
+
+    slide?.addEventListener("slide-enter", () => {
+        const title = slide.querySelector(".intro h2");
+        const container = slide.querySelector(".message-container");
+        const badge = slide.querySelector(".badge");
+
+        if (title) {
+            gsap.fromTo(
+                title,
+                { y: -50, autoAlpha: 0 },
+                { y: 0, autoAlpha: 1, duration: 0.8 },
+            );
+        }
+
+        if (container) {
+            gsap.fromTo(
+                container,
+                { y: 100, autoAlpha: 0, scale: 0.9 },
+                {
+                    y: 0,
+                    autoAlpha: 1,
+                    scale: 1,
+                    duration: 1,
+                    delay: 0.5,
+                    ease: "power3.out",
+                },
+            );
+        }
+
+        if (badge) {
+            gsap.fromTo(
+                badge,
+                { scale: 0, rotate: 180 },
+                {
+                    scale: 1,
+                    rotate: -10,
+                    duration: 0.6,
+                    delay: 1.2,
+                    ease: "back.out",
+                },
+            );
+        }
+    });
+</script>
+
+<style>
+    .intro {
+        text-align: center;
+        max-width: 80%;
+        margin-bottom: 2rem;
+    }
+
+    .intro h2 {
+        opacity: 0;
+        visibility: hidden;
+    }
+
+    .message-container {
+        position: relative;
+        width: 90%;
+        max-width: 450px;
+        opacity: 0;
+    }
+
+    .message-bubble {
+        background: #202c33;
+        border-radius: 0px 20px 20px 20px;
+        padding: 1.5rem;
+        position: relative;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .message-bubble::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -10px;
+        width: 0;
+        height: 0;
+        border-top: 10px solid #202c33;
+        border-left: 10px solid transparent;
+    }
+
+    .msg-header {
+        font-weight: bold;
+        color: #e542a3;
+        margin-bottom: 0.5rem;
+    }
+
+    .msg-content {
+        font-size: 1.5rem; /* Larger for short repetitive messages */
+        line-height: 1.5;
+        color: #e9edef;
+        font-style: italic;
+    }
+
+    .msg-meta {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 5px;
+        margin-top: 10px;
+        font-size: 0.9rem; /* detailed info bigger */
+        color: #8696a0;
+    }
+
+    .checks {
+        color: #53bdeb;
+    }
+
+    .badge {
+        position: absolute;
+        bottom: -25px;
+        right: -10px;
+        background: #ffd700;
+        color: black;
+        font-weight: 800;
+        padding: 10px 20px;
+        transform: rotate(-10deg);
+        border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        font-size: 1.2rem;
+        z-index: 5;
+    }
+</style>

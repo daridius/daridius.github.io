@@ -1,28 +1,35 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import StoryContainer from "../components/StoryContainer.astro";
+
+// Import all slides
 import IntroSlide from "../components/IntroSlide.astro";
-import ActivitySlide from "../components/ActivitySlide.astro";
-import TimeSlide from "../components/TimeSlide.astro";
-import SocialSlide from "../components/SocialSlide.astro";
+import TotalsSlide from "../components/TotalsSlide.astro";
+import RankingSlide from "../components/RankingSlide.astro";
+import MostFrequentMessageSlide from "../components/MostFrequentMessageSlide.astro";
+import TopWordsSlide from "../components/TopWordsSlide.astro";
+import EmojiSlide from "../components/EmojiSlide.astro";
+import MonthlyChartSlide from "../components/MonthlyChartSlide.astro";
+import PeakDaySlide from "../components/PeakDaySlide.astro";
+import SilenceStreakSlide from "../components/SilenceStreakSlide.astro";
+import ActivityStreakSlide from "../components/ActivityStreakSlide.astro";
+import OutroSlide from "../components/OutroSlide.astro";
 ---
 
 <Layout title="WhatsApp Wrapped 2025">
 	<main>
 		<StoryContainer>
 			<IntroSlide />
-			<ActivitySlide />
-			<TimeSlide />
-			<SocialSlide />
-			<!-- Final generic "Thanks" slide can be added here -->
-			<section class="slide">
-				<div class="content-wrapper" style="text-align: center;">
-					<h1>¡Gracias por este año!</h1>
-					<p style="color: var(--text-secondary);">
-						Nos vemos en 2026
-					</p>
-				</div>
-			</section>
+			<TotalsSlide />
+			<RankingSlide />
+			<MostFrequentMessageSlide />
+			<TopWordsSlide />
+			<EmojiSlide />
+			<MonthlyChartSlide />
+			<PeakDaySlide />
+			<SilenceStreakSlide />
+			<ActivityStreakSlide />
+			<OutroSlide />
 		</StoryContainer>
 	</main>
 </Layout>

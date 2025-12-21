@@ -1,0 +1,134 @@
+---
+import Slide from "./Slide.astro";
+import { wrappedData, monthNames } from "../data";
+
+const fmt = (dStr: string) => {
+    const d = new Date(dStr);
+    const day = d.getUTCDate();
+    const month = monthNames[d.getUTCMonth()];
+    return `${day} de ${month}`;
+};
+---
+
+<Slide class="activity-streak-slide">
+    <div class="content">
+        <h2 class="sub-title">Desde el</h2>
+        <div class="dates">
+            <span class="highlight"
+                >{fmt(wrappedData.longest_activity_streak.from)}</span
+            >
+            al
+            <span class="highlight"
+                >{fmt(wrappedData.longest_activity_streak.to)}</span
+            >
+        </div>
+
+        <h1 class="main-msg">¡No pararon de hablar!</h1>
+
+        <div class="streak-badge">
+            <span class="fire">🔥</span>
+            <span>{wrappedData.longest_activity_streak.days} días seguidos</span
+            >
+        </div>
+    </div>
+</Slide>
+
+<script>
+    import { gsap } from "gsap";
+    const slide = document.querySelector(".activity-streak-slide");
+
+    slide?.addEventListener("slide-enter", () => {
+        const title = slide.querySelector(".sub-title");
+        const dates = slide.querySelector(".dates");
+        const mainMsg = slide.querySelector(".main-msg");
+        const badge = slide.querySelector(".streak-badge");
+
+        if (title && dates) {
+            gsap.fromTo(
+                [title, dates],
+                { autoAlpha: 0 },
+                { autoAlpha: 1, duration: 1 },
+            );
+        }
+
+        if (mainMsg) {
+            gsap.fromTo(
+                mainMsg,
+                { scale: 0.5, autoAlpha: 0 },
+                {
+                    scale: 1,
+                    autoAlpha: 1,
+                    duration: 0.8,
+                    ease: "elastic.out(1, 0.6)",
+                    delay: 0.5,
+                },
+            );
+        }
+
+        if (badge) {
+            gsap.fromTo(
+                badge,
+                { y: 50, autoAlpha: 0 },
+                { y: 0, autoAlpha: 1, duration: 0.6, delay: 1 },
+            );
+        }
+    });
+</script>
+
+<style>
+    .content {
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .sub-title,
+    .dates,
+    .main-msg,
+    .streak-badge {
+        opacity: 0;
+        visibility: hidden;
+    }
+
+    h2 {
+        font-weight: 300;
+        font-size: 1.5rem;
+    }
+
+    .dates {
+        font-size: 1.8rem;
+        margin-bottom: 2rem;
+    }
+
+    .highlight {
+        color: #4ecdc4;
+        font-weight: bold;
+    }
+
+    .main-msg {
+        font-size: 3rem;
+        color: var(--whatsapp-green);
+        text-transform: uppercase;
+        line-height: 1;
+        margin: 0;
+    }
+
+    .streak-badge {
+        margin-top: 2rem;
+        background: linear-gradient(45deg, #ff512f, #dd2476);
+        padding: 10px 25px;
+        border-radius: 30px;
+        font-size: 1.5rem;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        box-shadow: 0 0 20px rgba(221, 36, 118, 0.5);
+    }
+
+    .fire {
+        font-size: 2rem;
+    }
+</style>

@@ -1,0 +1,115 @@
+---
+import Slide from "./Slide.astro";
+import { wrappedData, monthNames } from "../data";
+
+const dateObj = new Date(wrappedData.peak_activity_day.date);
+const day = dateObj.getUTCDate(); // Use UTC to avoid timezone shifts on simple dates
+const month = monthNames[dateObj.getUTCMonth()];
+---
+
+<Slide class="peak-day-slide">
+    <h2>Pero el prime del grupo fue el...</h2>
+
+    <div class="calendar-reveal">
+        <div class="calendar-icon">
+            <div class="cal-month">{month}</div>
+            <div class="cal-day">{day}</div>
+        </div>
+        <div class="msg-count">
+            {wrappedData.peak_activity_day.messages} mensajes
+        </div>
+    </div>
+</Slide>
+
+<script>
+    import { gsap } from "gsap";
+    const slide = document.querySelector(".peak-day-slide");
+
+    slide?.addEventListener("slide-enter", () => {
+        const title = slide.querySelector("h2");
+        const calendar = slide.querySelector(".calendar-reveal");
+
+        if (title) {
+            gsap.fromTo(
+                title,
+                { autoAlpha: 0, y: -20 },
+                { autoAlpha: 1, y: 0, duration: 1 },
+            );
+        }
+
+        if (calendar) {
+            gsap.fromTo(
+                calendar,
+                { scale: 0, rotate: -30, autoAlpha: 0 },
+                {
+                    scale: 1,
+                    rotate: 0,
+                    autoAlpha: 1,
+                    duration: 1,
+                    ease: "elastic.out(1, 0.6)",
+                    delay: 0.5,
+                },
+            );
+        }
+    });
+</script>
+
+<style>
+    h2 {
+        opacity: 0;
+        visibility: hidden;
+        position: absolute;
+        top: 10%; /* Moved up from 20% to give more space */
+        text-align: center;
+        width: 80%;
+    }
+
+    .calendar-reveal {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 2rem;
+        margin-top: 50px;
+        opacity: 0;
+        visibility: hidden;
+    }
+
+    .calendar-icon {
+        background: white;
+        color: #111;
+        border-radius: 20px;
+        width: 220px;
+        height: 220px;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+    }
+
+    .cal-month {
+        background: #d32592;
+        color: white;
+        text-transform: uppercase;
+        font-weight: bold;
+        padding: 15px;
+        text-align: center;
+        font-size: 1.8rem;
+    }
+
+    .cal-day {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 7rem;
+        font-weight: 800;
+        line-height: 1;
+    }
+
+    .msg-count {
+        font-size: 2.5rem;
+        font-weight: bold;
+        color: var(--accent-neon);
+        text-shadow: 0 0 20px rgba(0, 255, 100, 0.3);
+    }
+</style>

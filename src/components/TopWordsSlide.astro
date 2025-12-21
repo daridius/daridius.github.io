@@ -1,0 +1,126 @@
+---
+import Slide from "./Slide.astro";
+import { wrappedData } from "../data";
+---
+
+<Slide class="top-words-slide">
+    <h2 class="title">Palabras que no pararon de usar...</h2>
+
+    <div class="word-cloud-pills">
+        {
+            wrappedData.top_words.map((item, index) => (
+                <div
+                    class={`word-pill rank-${index + 1}`}
+                    style={`--scale: ${1 + (5 - index) * 0.2}`}
+                >
+                    <span class="word">{item.word}</span>
+                    <span class="count-badge">{item.count}</span>
+                </div>
+            ))
+        }
+    </div>
+</Slide>
+
+<script>
+    import { gsap } from "gsap";
+    const slide = document.querySelector(".top-words-slide");
+
+    slide?.addEventListener("slide-enter", () => {
+        const title = slide.querySelector(".title");
+        const pills = slide.querySelectorAll(".word-pill");
+
+        if (title) {
+            gsap.fromTo(
+                title,
+                { autoAlpha: 0, y: -20 },
+                { autoAlpha: 1, y: 0, duration: 1 },
+            );
+        }
+
+        if (pills.length) {
+            gsap.fromTo(
+                pills,
+                { scale: 0.5, autoAlpha: 0 },
+                {
+                    scale: 1,
+                    autoAlpha: 1,
+                    stagger: 0.1,
+                    duration: 0.6,
+                    ease: "back.out(1.5)",
+                    delay: 0.3,
+                },
+            );
+        }
+    });
+</script>
+
+<style>
+    .title {
+        position: absolute;
+        top: 15%;
+        text-align: center;
+        width: 100%;
+        opacity: 0;
+        visibility: hidden;
+    }
+
+    .word-cloud-pills {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: center;
+        gap: 1.5rem;
+        margin-top: 100px;
+        max-width: 800px;
+        padding: 0 2rem;
+    }
+
+    .word-pill {
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 50px;
+        padding: 0.8rem 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        opacity: 0;
+        visibility: hidden;
+        transition: transform 0.3s;
+        /* Base size adjusted by scale */
+        transform: scale(var(--scale));
+    }
+
+    .word-pill:hover {
+        background: rgba(255, 255, 255, 0.15);
+        border-color: var(--whatsapp-green);
+    }
+
+    .word {
+        font-weight: 700;
+        color: white;
+        font-size: 1.5rem;
+    }
+
+    .count-badge {
+        font-size: 0.9rem;
+        background: var(--whatsapp-green);
+        color: #000;
+        padding: 2px 8px;
+        border-radius: 10px;
+        font-weight: bold;
+    }
+
+    /* Highlight top words */
+    .rank-1 .word {
+        color: var(--accent-neon);
+        font-size: 2rem;
+    }
+    .rank-1 {
+        border-color: var(--accent-neon);
+        background: rgba(37, 211, 102, 0.1);
+    }
+
+    .rank-2 .word {
+        font-size: 1.8rem;
+    }
+</style>
