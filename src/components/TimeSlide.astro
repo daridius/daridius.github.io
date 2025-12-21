@@ -1,0 +1,86 @@
+---
+import Slide from "./Slide.astro";
+import { wrappedData, monthNames } from "../data";
+
+const topMonthName = monthNames[wrappedData.topMonth - 1]; // 0-indexed array vs 1-indexed data
+---
+
+<Slide class="time-slide">
+    <div class="grid-container">
+        <div class="card month-card">
+            <h3>Mes más activo</h3>
+            <div class="stat-value month">{topMonthName}</div>
+            <div class="icon">📅</div>
+        </div>
+
+        <div class="card hour-card">
+            <h3>Hora pico</h3>
+            <div class="stat-value hour">{wrappedData.peakHour}:00</div>
+            <p class="subtitle">Eres un búho nocturno 🦉</p>
+        </div>
+
+        <div class="card quiet-card">
+            <h3>Racha de silencio</h3>
+            <div class="stat-value days">{wrappedData.quietDaysMax}</div>
+            <p class="subtitle">Días sin mensajes</p>
+        </div>
+    </div>
+</Slide>
+
+<style>
+    .grid-container {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 2rem;
+        width: 100%;
+        text-align: center;
+    }
+
+    .card {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 1.5rem;
+        border-radius: 20px;
+        backdrop-filter: blur(10px);
+        transform-style: preserve-3d;
+    }
+
+    h3 {
+        margin: 0;
+        font-size: 1rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: var(--text-secondary);
+    }
+
+    .stat-value {
+        font-weight: 700;
+        margin: 0.5rem 0;
+        color: white;
+    }
+
+    .stat-value.month {
+        font-size: 3rem;
+        color: #ffd700;
+    }
+    .stat-value.hour {
+        font-size: 3.5rem;
+        color: #ff6b6b;
+    }
+    .stat-value.days {
+        font-size: 2.5rem;
+        color: #4ecdc4;
+    }
+
+    .subtitle {
+        margin: 0;
+        font-size: 0.9rem;
+        opacity: 0.7;
+    }
+
+    .icon {
+        font-size: 2rem;
+        margin-top: 0.5rem;
+        display: inline-block;
+    }
+</style>

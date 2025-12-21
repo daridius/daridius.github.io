@@ -1,0 +1,67 @@
+---
+import Slide from "./Slide.astro";
+import { wrappedData } from "../data";
+---
+
+<Slide class="activity-slide">
+    <div class="stat-group">
+        <h3>Enviaste y recibiste</h3>
+        <div class="stat-value big">
+            {wrappedData.totalMessages.toLocaleString()}
+        </div>
+        <h3>mensajes en total</h3>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="stat-group secondary">
+        <p>Tu mensaje más largo tuvo</p>
+        <div class="stat-value highlight">
+            {wrappedData.longestMessageLength}
+        </div>
+        <p>caracteres. ¡Toda una biblia!</p>
+    </div>
+</Slide>
+
+<style>
+    .stat-group {
+        text-align: center;
+        margin: 2rem 0;
+    }
+
+    h3 {
+        font-size: 1.5rem;
+        font-weight: 300;
+        margin: 0.5rem 0;
+        color: var(--text-secondary);
+    }
+
+    p {
+        font-size: 1.2rem;
+        color: var(--text-secondary);
+        margin: 0.5rem 0;
+    }
+
+    .stat-value {
+        font-weight: 800;
+        color: white;
+    }
+
+    .stat-value.big {
+        font-size: 4rem;
+        color: var(--accent-neon);
+        text-shadow: 0 0 30px rgba(0, 255, 136, 0.3);
+    }
+
+    .stat-value.highlight {
+        font-size: 3rem;
+        color: var(--whatsapp-teal);
+    }
+
+    .divider {
+        width: 50px;
+        height: 2px;
+        background: rgba(255, 255, 255, 0.1);
+        margin: 1rem 0;
+    }
+</style>

@@ -1,0 +1,198 @@
+---
+
+---
+
+<div class="story-container">
+    <slot />
+
+    <div class="navigation-overlay">
+        <div class="nav-left"></div>
+        <div class="nav-right"></div>
+    </div>
+
+    <div class="progress-bar-container">
+        <!-- Progress bars will be injected here via JS or slot -->
+    </div>
+</div>
+
+<script>
+    import { gsap } from "gsap";
+
+    class StoryController {
+        slides: NodeListOf<HTMLElement>;
+        currentIndex: number;
+        isAnimating: boolean;
+
+        constructor() {
+            this.slides = document.querySelectorAll(".slide");
+            this.currentIndex = 0;
+            this.isAnimating = false;
+
+            this.init();
+        }
+
+        init() {
+            if (this.slides.length === 0) return;
+
+            // Show first slide
+            gsap.set(this.slides[0], { autoAlpha: 1, zIndex: 10 });
+            this.animateSlideIn(0);
+
+            // Bind events
+            document
+                .querySelector(".nav-right")
+                ?.addEventListener("click", () => this.next());
+            document
+                .querySelector(".nav-left")
+                ?.addEventListener("click", () => this.prev());
+
+            // Key navigation
+            window.addEventListener("keydown", (e) => {
+                if (e.key === "ArrowRight" || e.key === "Space") this.next();
+                if (e.key === "ArrowLeft") this.prev();
+            });
+        }
+
+        next() {
+            if (this.isAnimating || this.currentIndex >= this.slides.length - 1)
+                return;
+            this.transition(this.currentIndex, this.currentIndex + 1, "next");
+        }
+
+        prev() {
+            if (this.isAnimating || this.currentIndex <= 0) return;
+            this.transition(this.currentIndex, this.currentIndex - 1, "prev");
+        }
+
+        transition(
+            fromIndex: number,
+            toIndex: number,
+            direction: "next" | "prev",
+        ) {
+            this.isAnimating = true;
+            const fromSlide = this.slides[fromIndex];
+            const toSlide = this.slides[toIndex];
+
+            this.currentIndex = toIndex;
+
+            // Reset potential previous stats of toSlide if needed
+            // gsap.set(toSlide, { clearProps: "all" });
+
+            const tl = gsap.timeline({
+                onComplete: () => {
+                    this.isAnimating = false;
+                    gsap.set(fromSlide, { autoAlpha: 0, zIndex: 0 });
+                },
+            });
+
+            // Very simple fade/scale transition for now, can be elaborated
+            // Outgoing
+            tl.to(fromSlide, {
+                duration: 0.5,
+                /*scale: 0.9,*/
+                opacity: 0,
+                ease: "power2.inOut",
+            });
+
+            // Incoming
+            tl.set(toSlide, { autoAlpha: 1, zIndex: 10 }, "<");
+            tl.fromTo(
+                toSlide,
+                { opacity: 0 /*, scale: 1.1*/ },
+                { duration: 0.5, opacity: 1, /*scale: 1,*/ ease: "power2.out" },
+                "<",
+            );
+
+            // Trigger internal animations of the new slide
+            this.animateSlideContent(toSlide);
+        }
+
+        animateSlideIn(index: number) {
+            const slide = this.slides[index];
+            this.animateSlideContent(slide);
+        }
+
+        animateSlideContent(slide: HTMLElement) {
+            // Find elements with specific animation classes inside the slide
+            const title = slide.querySelector("h1, h2");
+            const stats = slide.querySelectorAll(".stat-value");
+            const icons = slide.querySelectorAll(".icon");
+
+            const tl = gsap.timeline({ delay: 0.3 });
+
+            if (title) {
+                tl.fromTo(
+                    title,
+                    { y: 30, opacity: 0 },
+                    { y: 0, opacity: 1, duration: 0.8, ease: "back.out(1.7)" },
+                );
+            }
+
+            if (stats.length) {
+                tl.fromTo(
+                    stats,
+                    { scale: 0, opacity: 0 },
+                    {
+                        scale: 1,
+                        opacity: 1,
+                        stagger: 0.2,
+                        duration: 0.6,
+                        ease: "elastic.out(1, 0.5)",
+                    },
+                    "-=0.4",
+                );
+            }
+
+            if (icons.length) {
+                tl.fromTo(
+                    icons,
+                    { y: 50, opacity: 0, rotation: -20 },
+                    {
+                        y: 0,
+                        opacity: 1,
+                        rotation: 0,
+                        stagger: 0.1,
+                        duration: 0.8,
+                        ease: "power3.out",
+                    },
+                    "-=0.6",
+                );
+            }
+        }
+    }
+
+    // Initialize on client side
+    document.addEventListener("DOMContentLoaded", () => {
+        new StoryController();
+    });
+</script>
+
+<style>
+    .story-container {
+        width: 100vw;
+        height: 100vh;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .navigation-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        z-index: 50;
+    }
+
+    .nav-left,
+    .nav-right {
+        flex: 1;
+        height: 100%;
+        cursor: pointer;
+        /* cursor: w-resize; */ /* optional hint */
+    }
+    .nav-right {
+        /* cursor: e-resize; */
+    }
+</style>
