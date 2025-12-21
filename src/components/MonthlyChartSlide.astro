@@ -35,7 +35,7 @@ const maxCount = Math.max(...sortedCounts);
                 <div class="bar-wrapper">
                     <div
                         class={`bar ${monthIndex === peakMonthIndex ? "peak-bar" : ""}`}
-                        style={`height: ${(sortedCounts[i] / maxCount) * 100}%;`}
+                        style="height: 0%;"
                         data-height={`${(sortedCounts[i] / maxCount) * 100}%`}
                     />
                     <div class="month-label">
@@ -97,7 +97,7 @@ const maxCount = Math.max(...sortedCounts);
         if (highlight) {
             gsap.fromTo(
                 highlight,
-                { autoAlpha: 0, y: 20 },
+                { autoAlpha: 0, y: 10 },
                 {
                     autoAlpha: 1,
                     y: 0,
@@ -168,10 +168,10 @@ const maxCount = Math.max(...sortedCounts);
 
     .peak-month-highlight {
         position: absolute;
-        bottom: 15%;
+        bottom: 8%; /* Moved lower to avoid collision */
         text-align: center;
         width: 80%;
-        font-size: 1.2rem;
+        font-size: 1.1rem; /* Slightly smaller to fit better */
         opacity: 0;
         visibility: hidden;
     }
