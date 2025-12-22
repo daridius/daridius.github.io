@@ -42,15 +42,15 @@ export class RankingSlide extends Slide {
         const cards = this.element?.querySelectorAll(".rank-card");
 
         if (title) {
-            gsap.fromTo(
+            this.tweens.push(gsap.fromTo(
                 title,
                 { autoAlpha: 0, y: -20 },
                 { autoAlpha: 1, y: 0, duration: 0.8 }
-            );
+            ));
         }
 
         if (cards && cards.length > 0) {
-            gsap.fromTo(
+            this.tweens.push(gsap.fromTo(
                 cards,
                 { y: 60, autoAlpha: 0, scale: 0.9 },
                 {
@@ -62,12 +62,12 @@ export class RankingSlide extends Slide {
                     delay: 0.3,
                     ease: "power3.out",
                 }
-            );
+            ));
         }
-
     }
 
     onLeave(): void {
+        this.killAnimations();
         const elements = this.element?.querySelectorAll(".header-title, .rank-card");
         if (elements) {
             gsap.set(elements, { autoAlpha: 0 });

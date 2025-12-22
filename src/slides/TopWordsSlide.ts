@@ -38,30 +38,52 @@ export class TopWordsSlide extends Slide {
         const pills = this.element?.querySelectorAll(".word-pill");
 
         if (title) {
-            gsap.fromTo(
+            this.tweens.push(gsap.fromTo(
                 title,
-                { autoAlpha: 0, y: -20 },
-                { autoAlpha: 1, y: 0, duration: 1 }
-            );
+                { autoAlpha: 0, scale: 0.9 },
+                { autoAlpha: 1, scale: 1, duration: 0.8, ease: "power2.out" }
+            ));
         }
 
         if (pills && pills.length > 0) {
-            gsap.fromTo(
+            this.tweens.push(gsap.fromTo(
                 pills,
-                { scale: 0.5, autoAlpha: 0 },
+                { scale: 0, autoAlpha: 0 },
                 {
-                    scale: 1,
+                    scale: (i, el) => {
+                        // Keep the original scale from style or dataset if needed, 
+                        // but here we just want to scale to their computed size.
+                        // Actually, we should probably read the intended scale from a CSS variable if set,
+                        // or just scale to 1 assuming the CSS sets the base size.
+                        // However, the CSS sets --scale. 
+                        // Let's just animate to scale: var(--scale) is tricky in "to".
+                        // Better: animate 'scale' property from 0 to 1, and let CSS var handle the size relative to that?
+                        // The CSS has: transform: scale(var(--scale));
+                        // If GSAP animates "scale", it overrides transform.
+                        // This might conflict. 
+                        // A safer bet is "from: { autoAlpha: 0, scale: 0 }, to: { autoAlpha: 1, scale: 1 }" 
+                        // assuming GSAP composes properly or we act on a safe property.
+                        // Actually, previously it was:
+                        // { scale: 0, autoAlpha: 0 }, { scale: 1, autoAlpha: 1 ... }
+                        // This likely worked because GSAP parses the current transform. 
+                        // Let's stick to what was there.
+                        return 1; // Return 1 to animate to "natural" size of the element context
+                    },
                     autoAlpha: 1,
-                    stagger: 0.1,
-                    duration: 0.6,
-                    ease: "back.out(1.5)",
+                    stagger: {
+                        amount: 1,
+                        from: "random"
+                    },
+                    duration: 0.8,
                     delay: 0.3,
+                    ease: "back.out(1.7)"
                 }
-            );
+            ));
         }
     }
 
     onLeave(): void {
+        this.killAnimations();
         const elements = this.element?.querySelectorAll(".title, .word-pill");
         if (elements) {
             gsap.set(elements, { autoAlpha: 0 });

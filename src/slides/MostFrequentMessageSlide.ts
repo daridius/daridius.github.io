@@ -43,15 +43,15 @@ export class MostFrequentMessageSlide extends Slide {
         const badge = this.element?.querySelector(".badge");
 
         if (title) {
-            gsap.fromTo(
+            this.tweens.push(gsap.fromTo(
                 title,
                 { y: -50, autoAlpha: 0 },
                 { y: 0, autoAlpha: 1, duration: 0.8 },
-            );
+            ));
         }
 
         if (container) {
-            gsap.fromTo(
+            this.tweens.push(gsap.fromTo(
                 container,
                 { y: 100, autoAlpha: 0, scale: 0.9 },
                 {
@@ -62,7 +62,7 @@ export class MostFrequentMessageSlide extends Slide {
                     delay: 0.5,
                     ease: "power3.out",
                 },
-            );
+            ));
         }
 
         if (badge) {

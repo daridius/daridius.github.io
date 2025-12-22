@@ -44,34 +44,36 @@ export class EmojiSlide extends Slide {
     }
 
     onEnter(): void {
-        const intro = this.element?.querySelector(".intro");
+        const title = this.element?.querySelector(".intro");
         const items = this.element?.querySelectorAll(".emoji-item");
 
-        if (intro) {
-            gsap.fromTo(
-                intro,
-                { autoAlpha: 0, scale: 0.8 },
-                { autoAlpha: 1, scale: 1, duration: 1 }
-            );
+        if (title) {
+            this.tweens.push(gsap.fromTo(
+                title,
+                { autoAlpha: 0, y: -20 },
+                { autoAlpha: 1, y: 0, duration: 0.8 }
+            ));
         }
 
         if (items && items.length > 0) {
-            gsap.fromTo(
+            this.tweens.push(gsap.fromTo(
                 items,
-                { y: 100, autoAlpha: 0 },
+                { y: 50, autoAlpha: 0, scale: 0.5 },
                 {
                     y: 0,
                     autoAlpha: 1,
-                    stagger: 0.2,
-                    duration: 0.8,
-                    ease: "back.out(2)",
-                    delay: 0.3,
+                    scale: 1,
+                    stagger: 0.2, // Stagger appearance
+                    duration: 1,
+                    delay: 0.2,
+                    ease: "elastic.out(1, 0.5)",
                 }
-            );
+            ));
         }
     }
 
     onLeave(): void {
+        this.killAnimations();
         const elements = this.element?.querySelectorAll(".intro, .emoji-item");
         if (elements) {
             gsap.set(elements, { autoAlpha: 0 });

@@ -43,23 +43,24 @@ export class SilenceStreakSlide extends Slide {
         const emoji = this.element?.querySelector(".emoji-reaction");
 
         if (content) {
-            gsap.fromTo(
+            this.tweens.push(gsap.fromTo(
                 content,
                 { autoAlpha: 0 },
                 { autoAlpha: 1, duration: 1 },
-            );
+            ));
         }
 
         if (emoji) {
-            gsap.fromTo(
+            this.tweens.push(gsap.fromTo(
                 emoji,
                 { scale: 0, autoAlpha: 0 },
                 { scale: 1, autoAlpha: 1, duration: 0.8, ease: "bounce.out", delay: 0.5 },
-            );
+            ));
         }
     }
 
     onLeave(): void {
+        this.killAnimations();
         const elements = this.element?.querySelectorAll(".content, .emoji-reaction, .calendar");
         if (elements) {
             gsap.set(elements, { autoAlpha: 0 });

@@ -46,15 +46,15 @@ export class ActivityStreakSlide extends Slide {
         const badge = this.element?.querySelector(".streak-badge");
 
         if (title && dates) {
-            gsap.fromTo(
+            this.tweens.push(gsap.fromTo(
                 [title, dates],
                 { autoAlpha: 0 },
                 { autoAlpha: 1, duration: 1 },
-            );
+            ));
         }
 
         if (mainMsg) {
-            gsap.fromTo(
+            this.tweens.push(gsap.fromTo(
                 mainMsg,
                 { scale: 0.5, autoAlpha: 0 },
                 {
@@ -64,19 +64,20 @@ export class ActivityStreakSlide extends Slide {
                     ease: "elastic.out(1, 0.6)",
                     delay: 0.5,
                 },
-            );
+            ));
         }
 
         if (badge) {
-            gsap.fromTo(
+            this.tweens.push(gsap.fromTo(
                 badge,
                 { y: 50, autoAlpha: 0 },
                 { y: 0, autoAlpha: 1, duration: 0.6, delay: 1 },
-            );
+            ));
         }
     }
 
     onLeave(): void {
+        this.killAnimations();
         // Hide all major animated groups
         const elements = this.element?.querySelectorAll(".sub-title, .dates, .main-msg, .streak-badge");
         if (elements) {

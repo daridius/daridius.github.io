@@ -29,10 +29,10 @@ export class IntroSlide extends Slide {
     }
 
     onEnter(): void {
-        const tl = gsap.timeline();
+        this.timeline = gsap.timeline();
 
         // Animate Container with more flair
-        tl.fromTo(
+        this.timeline.fromTo(
             this.element!.querySelector(".year-container"),
             { scale: 0.9, autoAlpha: 0, y: 30 },
             {
@@ -47,7 +47,7 @@ export class IntroSlide extends Slide {
         // Individual stagger for text elements if needed, but keeping it simple for now
 
         // Animate Bubbles as subtle magic
-        tl.fromTo(
+        this.timeline.fromTo(
             this.element!.querySelectorAll(".bubble"),
             { scale: 0, autoAlpha: 0 },
             { scale: 1, autoAlpha: 1, stagger: 0.3, duration: 1, ease: "elastic.out(1, 0.7)" },
@@ -57,6 +57,7 @@ export class IntroSlide extends Slide {
 
 
     onLeave(): void {
+        this.killAnimations();
         const elements = this.element?.querySelectorAll(".year-container, .bubble");
         if (elements) {
             gsap.set(elements, { autoAlpha: 0 });

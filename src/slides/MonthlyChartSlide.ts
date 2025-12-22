@@ -62,38 +62,34 @@ export class MonthlyChartSlide extends Slide {
 
     onEnter(): void {
         const title = this.element?.querySelector("h2");
-        const chart = this.element?.querySelector(".chart-container");
-        const bars = this.element?.querySelectorAll(".bar");
+        const container = this.element?.querySelector(".chart-container");
         const highlight = this.element?.querySelector(".peak-month-highlight");
 
         if (title) {
-            gsap.fromTo(
+            this.tweens.push(gsap.fromTo(
                 title,
-                { autoAlpha: 0, y: -50 },
-                { autoAlpha: 1, y: 0, duration: 1 },
-            );
+                { y: -50, autoAlpha: 0 },
+                { y: 0, autoAlpha: 1, duration: 0.8 },
+            ));
         }
 
-        if (chart) {
-            gsap.to(chart, { autoAlpha: 1, duration: 0.5 });
-        }
-
-        if (bars && bars.length > 0) {
-            gsap.fromTo(
-                bars,
-                { height: 0 },
+        if (container) {
+            this.tweens.push(gsap.fromTo(
+                container,
+                { y: 100, autoAlpha: 0, scale: 0.9 },
                 {
-                    height: (_i, t) => t.dataset.height,
-                    stagger: 0.05,
-                    duration: 1.2,
-                    ease: "power2.out",
+                    y: 0,
+                    autoAlpha: 1,
+                    scale: 1,
+                    duration: 1,
                     delay: 0.5,
+                    ease: "power3.out",
                 },
-            );
+            ));
         }
 
         if (highlight) {
-            gsap.fromTo(
+            this.tweens.push(gsap.fromTo(
                 highlight,
                 { autoAlpha: 0, y: 10 },
                 {
@@ -103,11 +99,12 @@ export class MonthlyChartSlide extends Slide {
                     delay: 1.5,
                     ease: "power2.out",
                 },
-            );
+            ));
         }
     }
 
     onLeave(): void {
+        this.killAnimations();
         const elements = this.element?.querySelectorAll("h2, .chart-container, .peak-month-highlight");
         if (elements) {
             gsap.set(elements, { autoAlpha: 0 });

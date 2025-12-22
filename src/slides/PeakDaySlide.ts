@@ -37,15 +37,15 @@ export class PeakDaySlide extends Slide {
         const calendar = this.element?.querySelector(".calendar-reveal");
 
         if (title) {
-            gsap.fromTo(
+            this.tweens.push(gsap.fromTo(
                 title,
                 { autoAlpha: 0, y: -20 },
                 { autoAlpha: 1, y: 0, duration: 1 },
-            );
+            ));
         }
 
         if (calendar) {
-            gsap.fromTo(
+            this.tweens.push(gsap.fromTo(
                 calendar,
                 { scale: 0, rotate: -30, autoAlpha: 0 },
                 {
@@ -56,12 +56,13 @@ export class PeakDaySlide extends Slide {
                     ease: "elastic.out(1, 0.6)",
                     delay: 0.5,
                 },
-            );
+            ));
         }
     }
 
 
     onLeave(): void {
+        this.killAnimations();
         const elements = this.element?.querySelectorAll("h2, .calendar-reveal");
         if (elements) {
             gsap.set(elements, { autoAlpha: 0 });

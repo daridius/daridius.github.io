@@ -34,10 +34,10 @@ export class TotalsSlide extends Slide {
     }
 
     onEnter(): void {
-        const tl = gsap.timeline();
+        this.timeline = gsap.timeline();
 
         // Reveal items
-        tl.fromTo(
+        this.timeline.fromTo(
             this.element!.querySelectorAll(".stat-item"),
             { autoAlpha: 0, scale: 0.8, y: 30 },
             {
@@ -50,29 +50,29 @@ export class TotalsSlide extends Slide {
             }
         );
 
-        // Counter animation
-        const counters = this.element!.querySelectorAll('.value');
-        const values = [
-            this.data.totals.messages,
-            this.data.totals.words,
-            this.data.totals.characters
-        ];
+        // Counter Animation
+        const msgEl = this.element!.querySelector("#stat-messages");
+        const wordsEl = this.element!.querySelector("#stat-words");
+        const charsEl = this.element!.querySelector("#stat-chars");
 
-        counters.forEach((el, i) => {
-            const obj = { val: 0 };
-            tl.to(obj, {
-                val: values[i],
-                duration: 2,
-                ease: "power2.out",
-                onUpdate: () => {
-                    el.textContent = Math.floor(obj.val).toLocaleString();
-                }
-            }, 0.2 + (i * 0.2)); // Start counting slightly after reveal
-        });
+        const obj = { m: 0, w: 0, c: 0 };
+        this.timeline.to(obj, {
+            m: this.data.totals.messages,
+            w: this.data.totals.words,
+            c: this.data.totals.characters,
+            duration: 2.5,
+            ease: "expo.out",
+            onUpdate: () => {
+                if (msgEl) msgEl.textContent = Math.floor(obj.m).toLocaleString();
+                if (wordsEl) wordsEl.textContent = Math.floor(obj.w).toLocaleString();
+                if (charsEl) charsEl.textContent = Math.floor(obj.c).toLocaleString();
+            }
+        }, "-=0.8");
     }
 
 
     onLeave(): void {
+        this.killAnimations();
         const elements = this.element?.querySelectorAll(".stat-item");
         if (elements) {
             gsap.set(elements, { autoAlpha: 0 });

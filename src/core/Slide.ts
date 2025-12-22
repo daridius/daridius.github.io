@@ -1,6 +1,9 @@
 export abstract class Slide {
     protected element: HTMLElement | null = null;
 
+    protected timeline: gsap.core.Timeline | null = null;
+    protected tweens: gsap.core.Tween[] = [];
+
     constructor() { }
 
     /**
@@ -28,4 +31,24 @@ export abstract class Slide {
      * Note: StoryController usually handles the main slide-out transition.
      */
     abstract onLeave(): void;
+
+    /**
+     * Called when the slide exit transition starts.
+     * Use this to freeze animations so they don't interfere with the exit transition.
+     */
+    onExitStart(): void {
+        this.killAnimations();
+    }
+
+    /**
+     * Helper to kill active animations
+     */
+    protected killAnimations() {
+        if (this.timeline) {
+            this.timeline.kill();
+            this.timeline = null;
+        }
+        this.tweens.forEach(t => t.kill());
+        this.tweens = [];
+    }
 }

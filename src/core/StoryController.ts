@@ -91,6 +91,7 @@ export class StoryController {
         const fromEl = this.slideElements[fromIndex];
         const toEl = this.slideElements[toIndex];
 
+        fromSlideInstance.onExitStart(); // Stop internal animations immediately
         this.currentSlideIndex = toIndex;
 
         const tl = gsap.timeline({

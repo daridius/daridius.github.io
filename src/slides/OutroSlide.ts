@@ -34,14 +34,14 @@ export class OutroSlide extends Slide {
         const p = this.element?.querySelector("p");
 
         if (h1) {
-            gsap.fromTo(
+            this.tweens.push(gsap.fromTo(
                 h1,
                 { autoAlpha: 0, y: 20 },
                 { autoAlpha: 1, y: 0, duration: 1 },
-            );
+            ));
         }
         if (emoji) {
-            gsap.fromTo(
+            this.tweens.push(gsap.fromTo(
                 emoji,
                 { scale: 0, rotate: -360, autoAlpha: 0 },
                 {
@@ -51,14 +51,15 @@ export class OutroSlide extends Slide {
                     duration: 1.2,
                     ease: "elastic.out(1, 0.3)",
                 },
-            );
+            ));
         }
         if (p) {
-            gsap.fromTo(p, { autoAlpha: 0 }, { autoAlpha: 1, delay: 1 });
+            this.tweens.push(gsap.fromTo(p, { autoAlpha: 0 }, { autoAlpha: 1, delay: 1 }));
         }
     }
 
     onLeave(): void {
+        this.killAnimations();
         const elements = this.element?.querySelectorAll("h1, .emoji, p");
         if (elements) {
             gsap.set(elements, { autoAlpha: 0 });
