@@ -216,7 +216,7 @@ export function parseChat(chatContent: string): WrappedData {
     const topEmojis = Object.entries(emojiCounts)
         .map(([emoji, count]) => ({ emoji, count }))
         .sort((a, b) => b.count - a.count)
-        .slice(0, 3);
+        .slice(0, 5);
 
     // Peak Day
     let peakDate = '';

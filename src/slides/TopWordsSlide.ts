@@ -11,15 +11,30 @@ export class TopWordsSlide extends Slide {
     }
 
     getTemplate(): string {
-        const pillsHtml = this.data.top_words.map((item, index) => {
-            const rankClass = `rank-${index + 1}`;
-            // Use font-size instead of scale to respect layout flow and avoid overlaps
-            const fontSize = 1 + (5 - index) * 0.12;
+        const topWords = this.data.top_words.slice(0, 5);
+        const maxCount = topWords[0]?.count || 1;
+
+        // Spread positions to create an organic cloud
+        const positions = [
+            { top: '40%', left: '50%' },
+            { top: '20%', left: '25%' },
+            { top: '75%', left: '30%' },
+            { top: '25%', left: '75%' },
+            { top: '70%', left: '70%' }
+        ];
+
+        const bubblesHtml = topWords.map((item, i) => {
+            const baseSize = 160;
+            const minSize = 110;
+            const relativeScale = Math.sqrt(item.count / maxCount);
+            const size = Math.max(minSize, baseSize * relativeScale);
+            const pos = positions[i];
 
             return `
-                <div class="word-pill ${rankClass}" style="font-size: ${fontSize}rem">
-                    <span class="word">${item.word}</span>
-                    <span class="count-badge">${item.count}</span>
+                <div class="member-bubble rank-${i + 1}" 
+                    style="width: ${size}px; height: ${size}px; top: ${pos.top}; left: ${pos.left}; transform: translate(-50%, -50%)">
+                    <div class="b-name">${item.word}</div>
+                    <div class="b-count">${item.count}</div>
                 </div>
             `;
         }).join('');
@@ -27,8 +42,8 @@ export class TopWordsSlide extends Slide {
         return `
         <div class="content-wrapper top-words-slide-content">
             <h2 class="title">Palabras que no pararon de usar...</h2>
-            <div class="word-cloud-pills">
-                ${pillsHtml}
+            <div class="bubble-ranking-container">
+                ${bubblesHtml}
             </div>
         </div>
         `;
@@ -36,30 +51,28 @@ export class TopWordsSlide extends Slide {
 
     onEnter(): void {
         const title = this.element?.querySelector(".title");
-        const pills = this.element?.querySelectorAll(".word-pill");
+        const bubbles = this.element?.querySelectorAll(".member-bubble");
 
         if (title) {
-            this.tweens.push(gsap.fromTo(
-                title,
-                { autoAlpha: 0, scale: 0.9 },
-                { autoAlpha: 1, scale: 1, duration: 0.8, ease: "power2.out" }
-            ));
+            this.tweens.push(gsap.fromTo(title, { autoAlpha: 0, y: -20 }, { autoAlpha: 1, y: 0, duration: 0.8 }));
         }
 
-        if (pills && pills.length > 0) {
-            this.tweens.push(gsap.fromTo(
-                pills,
-                { scale: 0, autoAlpha: 0 },
+        if (bubbles && bubbles.length > 0) {
+            this.tweens.push(gsap.fromTo(bubbles,
+                { autoAlpha: 0, scale: 0, rotate: -45 },
                 {
-                    scale: 1,
                     autoAlpha: 1,
-                    stagger: {
-                        amount: 1,
-                        from: "random"
-                    },
-                    duration: 0.8,
-                    delay: 0.3,
-                    ease: "back.out(1.7)"
+                    scale: 1,
+                    rotate: 0,
+                    stagger: 0.15,
+                    duration: 1.2,
+                    ease: "elastic.out(1, 0.7)",
+                    onComplete: () => {
+                        bubbles.forEach((el, idx) => {
+                            (el as HTMLElement).classList.add('floating');
+                            (el as HTMLElement).style.animationDelay = `${idx * 0.4}s`;
+                        });
+                    }
                 }
             ));
         }
@@ -67,9 +80,7 @@ export class TopWordsSlide extends Slide {
 
     onLeave(): void {
         this.killAnimations();
-        const elements = this.element?.querySelectorAll(".title, .word-pill");
-        if (elements) {
-            gsap.set(elements, { autoAlpha: 0 });
-        }
+        const els = this.element?.querySelectorAll(".title, .member-bubble");
+        if (els) gsap.set(els, { autoAlpha: 0 });
     }
 }
