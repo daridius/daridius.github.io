@@ -66,22 +66,24 @@ export class MostFrequentMessageSlide extends Slide {
         }
 
         if (badge) {
-            gsap.fromTo(
+            this.tweens.push(gsap.fromTo(
                 badge,
-                { scale: 0, rotate: 180 },
+                { scale: 0, rotate: 180, autoAlpha: 0 },
                 {
                     scale: 1,
                     rotate: -10,
+                    autoAlpha: 1,
                     duration: 0.6,
                     delay: 1.2,
                     ease: "back.out",
                 },
-            );
+            ));
         }
     }
 
     onLeave(): void {
-        const elements = this.element?.querySelectorAll(".intro h2, .message-container");
+        this.killAnimations();
+        const elements = this.element?.querySelectorAll(".intro h2, .message-container, .badge");
         if (elements) {
             gsap.set(elements, { autoAlpha: 0 });
         }

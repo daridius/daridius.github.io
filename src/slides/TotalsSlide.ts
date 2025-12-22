@@ -16,17 +16,17 @@ export class TotalsSlide extends Slide {
             <div class="stat-container">
                 <div class="stat-item s1">
                     <h2 class="label">Mensajes</h2>
-                    <div class="value big">${this.data.totals.messages.toLocaleString()}</div>
+                    <div id="stat-messages" class="value big">${this.data.totals.messages.toLocaleString()}</div>
                 </div>
 
                 <div class="stat-item s2">
                     <h2 class="label">Palabras</h2>
-                    <div class="value medium">${this.data.totals.words.toLocaleString()}</div>
+                    <div id="stat-words" class="value medium">${this.data.totals.words.toLocaleString()}</div>
                 </div>
 
                 <div class="stat-item s3">
                     <h2 class="label">Caracteres</h2>
-                    <div class="value small">${this.data.totals.characters.toLocaleString()}</div>
+                    <div id="stat-chars" class="value small">${this.data.totals.characters.toLocaleString()}</div>
                 </div>
             </div>
         </div>
@@ -35,39 +35,48 @@ export class TotalsSlide extends Slide {
 
     onEnter(): void {
         this.timeline = gsap.timeline();
+        const items = this.element?.querySelectorAll(".stat-item");
 
-        // Reveal items
-        this.timeline.fromTo(
-            this.element!.querySelectorAll(".stat-item"),
-            { autoAlpha: 0, scale: 0.8, y: 30 },
-            {
-                autoAlpha: 1,
-                scale: 1,
-                y: 0,
-                stagger: 0.3,
-                duration: 1,
-                ease: "power4.out"
-            }
-        );
+        if (!items) return;
 
-        // Counter Animation
-        const msgEl = this.element!.querySelector("#stat-messages");
-        const wordsEl = this.element!.querySelector("#stat-words");
-        const charsEl = this.element!.querySelector("#stat-chars");
+        const targetValues = [
+            this.data.totals.messages,
+            this.data.totals.words,
+            this.data.totals.characters
+        ];
 
-        const obj = { m: 0, w: 0, c: 0 };
-        this.timeline.to(obj, {
-            m: this.data.totals.messages,
-            w: this.data.totals.words,
-            c: this.data.totals.characters,
-            duration: 2.5,
-            ease: "expo.out",
-            onUpdate: () => {
-                if (msgEl) msgEl.textContent = Math.floor(obj.m).toLocaleString();
-                if (wordsEl) wordsEl.textContent = Math.floor(obj.w).toLocaleString();
-                if (charsEl) charsEl.textContent = Math.floor(obj.c).toLocaleString();
-            }
-        }, "-=0.8");
+        items.forEach((item, i) => {
+            const valEl = item.querySelector('.value');
+            if (!valEl) return;
+
+            // Reset to 0 before showing
+            valEl.textContent = "0";
+
+            // 1. Reveal item
+            this.timeline!.fromTo(
+                item,
+                { autoAlpha: 0, scale: 0.8, y: 30 },
+                {
+                    autoAlpha: 1,
+                    scale: 1,
+                    y: 0,
+                    duration: 0.8,
+                    ease: "power4.out"
+                },
+                i * 0.3 // Manual stagger
+            );
+
+            // 2. Animate counter starting slightly after the item starts appearing
+            const obj = { val: 0 };
+            this.timeline!.to(obj, {
+                val: targetValues[i],
+                duration: 2,
+                ease: "expo.out",
+                onUpdate: () => {
+                    valEl.textContent = Math.floor(obj.val).toLocaleString();
+                }
+            }, i * 0.3 + 0.2);
+        });
     }
 
 

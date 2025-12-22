@@ -63,6 +63,7 @@ export class MonthlyChartSlide extends Slide {
     onEnter(): void {
         const title = this.element?.querySelector("h2");
         const container = this.element?.querySelector(".chart-container");
+        const bars = this.element?.querySelectorAll(".bar");
         const highlight = this.element?.querySelector(".peak-month-highlight");
 
         if (title) {
@@ -76,15 +77,22 @@ export class MonthlyChartSlide extends Slide {
         if (container) {
             this.tweens.push(gsap.fromTo(
                 container,
-                { y: 100, autoAlpha: 0, scale: 0.9 },
+                { autoAlpha: 0 },
+                { autoAlpha: 1, duration: 0.5, delay: 0.3 }
+            ));
+        }
+
+        if (bars && bars.length > 0) {
+            this.tweens.push(gsap.fromTo(
+                bars,
+                { height: 0 },
                 {
-                    y: 0,
-                    autoAlpha: 1,
-                    scale: 1,
-                    duration: 1,
+                    height: (_i, t) => (t as HTMLElement).dataset.height as any,
+                    stagger: 0.05,
+                    duration: 1.2,
+                    ease: "power2.out",
                     delay: 0.5,
-                    ease: "power3.out",
-                },
+                }
             ));
         }
 

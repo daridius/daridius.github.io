@@ -13,10 +13,11 @@ export class TopWordsSlide extends Slide {
     getTemplate(): string {
         const pillsHtml = this.data.top_words.map((item, index) => {
             const rankClass = `rank-${index + 1}`;
-            const scale = 1 + (5 - index) * 0.2;
+            // Use font-size instead of scale to respect layout flow and avoid overlaps
+            const fontSize = 1 + (5 - index) * 0.12;
 
             return `
-                <div class="word-pill ${rankClass}" style="--scale: ${scale}">
+                <div class="word-pill ${rankClass}" style="font-size: ${fontSize}rem">
                     <span class="word">${item.word}</span>
                     <span class="count-badge">${item.count}</span>
                 </div>
@@ -50,25 +51,7 @@ export class TopWordsSlide extends Slide {
                 pills,
                 { scale: 0, autoAlpha: 0 },
                 {
-                    scale: (i, el) => {
-                        // Keep the original scale from style or dataset if needed, 
-                        // but here we just want to scale to their computed size.
-                        // Actually, we should probably read the intended scale from a CSS variable if set,
-                        // or just scale to 1 assuming the CSS sets the base size.
-                        // However, the CSS sets --scale. 
-                        // Let's just animate to scale: var(--scale) is tricky in "to".
-                        // Better: animate 'scale' property from 0 to 1, and let CSS var handle the size relative to that?
-                        // The CSS has: transform: scale(var(--scale));
-                        // If GSAP animates "scale", it overrides transform.
-                        // This might conflict. 
-                        // A safer bet is "from: { autoAlpha: 0, scale: 0 }, to: { autoAlpha: 1, scale: 1 }" 
-                        // assuming GSAP composes properly or we act on a safe property.
-                        // Actually, previously it was:
-                        // { scale: 0, autoAlpha: 0 }, { scale: 1, autoAlpha: 1 ... }
-                        // This likely worked because GSAP parses the current transform. 
-                        // Let's stick to what was there.
-                        return 1; // Return 1 to animate to "natural" size of the element context
-                    },
+                    scale: 1,
                     autoAlpha: 1,
                     stagger: {
                         amount: 1,
