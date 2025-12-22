@@ -453,22 +453,11 @@ body {
 
 .most-frequent-msg-slide-content .message-bubble {
   background: #202c33;
-  border-radius: 0 24px 24px 24px;
+  border-radius: 24px;
   padding: 1.8rem;
   position: relative;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
   border: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.most-frequent-msg-slide-content .message-bubble::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: -12px;
-  width: 0;
-  height: 0;
-  border-top: 15px solid #202c33;
-  border-left: 15px solid transparent;
 }
 
 .most-frequent-msg-slide-content .msg-header {
