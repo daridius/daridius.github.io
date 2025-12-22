@@ -16,7 +16,9 @@ import { OutroSlide } from './slides/OutroSlide';
 import type { WrappedData } from './data';
 
 // initialize
-const app = document.querySelector<HTMLDivElement>('#app')!;
+if (!document.querySelector('#app')) throw new Error("App container not found");
+
+
 let data: WrappedData | null = null;
 
 // 1. Try to get data from Hash
