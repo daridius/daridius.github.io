@@ -72,22 +72,22 @@ export class RankingBubblesSlide extends Slide {
         }
 
         if (bubbles && bubbles.length > 0) {
-            // Animate non-winners first
             const others = Array.from(bubbles).filter(b => !b.classList.contains('rank-1'));
+
+            // Animate non-winners
             this.tweens.push(gsap.fromTo(others,
                 { autoAlpha: 0, scale: 0, rotate: -45 },
                 {
                     autoAlpha: 1,
                     scale: 1,
                     rotate: 0,
-                    stagger: 0.2,
-                    duration: 1,
-                    ease: "elastic.out(1, 0.6)",
+                    stagger: 0.15,
+                    duration: 1.2,
+                    ease: "elastic.out(1, 0.7)",
                     onComplete: () => {
-                        // Activate CSS floating animation with individual random delays
                         others.forEach((el, idx) => {
                             (el as HTMLElement).classList.add('floating');
-                            (el as HTMLElement).style.animationDelay = `${idx * 0.5}s`;
+                            (el as HTMLElement).style.animationDelay = `${idx * 0.4}s`;
                         });
                     }
                 }
@@ -95,18 +95,17 @@ export class RankingBubblesSlide extends Slide {
         }
 
         if (this.showWinner && winner) {
-            // Give the winner a more dramatic entry
+            // Winner entry - No more scale jumps or untracked onComplete tweens
             this.tweens.push(gsap.fromTo(winner,
-                { autoAlpha: 0, scale: 0, y: 50 },
+                { autoAlpha: 0, scale: 0, y: 30 },
                 {
                     autoAlpha: 1,
-                    scale: 1.1,
+                    scale: 1,
                     y: 0,
-                    duration: 1.2,
-                    delay: 0.8,
+                    duration: 1.5,
+                    delay: 0.6,
                     ease: "elastic.out(1, 0.5)",
                     onComplete: () => {
-                        gsap.to(winner, { scale: 1, duration: 0.5 });
                         (winner as HTMLElement).classList.add('floating');
                     }
                 }
@@ -115,8 +114,16 @@ export class RankingBubblesSlide extends Slide {
             const crown = winner.querySelector(".b-crown");
             if (crown) {
                 this.tweens.push(gsap.fromTo(crown,
-                    { autoAlpha: 0, y: -50, scale: 0 },
-                    { autoAlpha: 1, y: 0, scale: 1, delay: 1.5, duration: 0.6, ease: "back.out(2)" }
+                    { autoAlpha: 0, y: -40, scale: 0, rotate: -20 },
+                    {
+                        autoAlpha: 1,
+                        y: 0,
+                        scale: 1,
+                        rotate: 0,
+                        delay: 1.4,
+                        duration: 0.8,
+                        ease: "back.out(2)"
+                    }
                 ));
             }
         }
