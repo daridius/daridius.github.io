@@ -34,14 +34,48 @@ export class TotalsSlide extends Slide {
     }
 
     onEnter(): void {
-        gsap.fromTo(
+        const tl = gsap.timeline();
+
+        // Reveal items
+        tl.fromTo(
             this.element!.querySelectorAll(".stat-item"),
-            { opacity: 0, y: 50 },
-            { opacity: 1, y: 0, stagger: 0.2, duration: 0.8, ease: "back.out" }
+            { autoAlpha: 0, scale: 0.8, y: 30 },
+            {
+                autoAlpha: 1,
+                scale: 1,
+                y: 0,
+                stagger: 0.3,
+                duration: 1,
+                ease: "power4.out"
+            }
         );
+
+        // Counter animation
+        const counters = this.element!.querySelectorAll('.value');
+        const values = [
+            this.data.totals.messages,
+            this.data.totals.words,
+            this.data.totals.characters
+        ];
+
+        counters.forEach((el, i) => {
+            const obj = { val: 0 };
+            tl.to(obj, {
+                val: values[i],
+                duration: 2,
+                ease: "power2.out",
+                onUpdate: () => {
+                    el.textContent = Math.floor(obj.val).toLocaleString();
+                }
+            }, 0.2 + (i * 0.2)); // Start counting slightly after reveal
+        });
     }
 
+
     onLeave(): void {
-        // Cleanup
+        const elements = this.element?.querySelectorAll(".stat-item");
+        if (elements) {
+            gsap.set(elements, { autoAlpha: 0 });
+        }
     }
 }

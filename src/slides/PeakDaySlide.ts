@@ -60,5 +60,11 @@ export class PeakDaySlide extends Slide {
         }
     }
 
-    onLeave(): void { }
+
+    onLeave(): void {
+        const elements = this.element?.querySelectorAll("h2, .calendar-reveal");
+        if (elements) {
+            gsap.set(elements, { autoAlpha: 0 });
+        }
+    }
 }

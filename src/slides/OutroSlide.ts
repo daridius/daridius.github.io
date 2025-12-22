@@ -58,5 +58,10 @@ export class OutroSlide extends Slide {
         }
     }
 
-    onLeave(): void { }
+    onLeave(): void {
+        const elements = this.element?.querySelectorAll("h1, .emoji, p");
+        if (elements) {
+            gsap.set(elements, { autoAlpha: 0 });
+        }
+    }
 }

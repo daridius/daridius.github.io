@@ -181,20 +181,21 @@ export function parseChat(chatContent: string): WrappedData {
             });
         }
 
-        // Most frequent message (exact match, case insensitive, ignore super short generic ones like "si", "no")
-        const cleanedContent = msg.content.trim();
+        // Most frequent message (exact match, case insensitive, truncate to 50 chars)
+        let cleanedContent = msg.content.trim();
         if (cleanedContent.length > 3) {
-            // Key by content + author to see who says what most, or just content?
-            // Usually "Most frequent message" in wrapped is "Who said the same thing most times" or "What message was repeated most?"
-            // Data interface: author, content, count. Implies one specific message instance repeated.
-            const key = cleanedContent.toLowerCase(); // normalization
+            // Apply 50 char limit to avoid massive strings in hash
+            if (cleanedContent.length > 50) {
+                cleanedContent = cleanedContent.substring(0, 50) + "...";
+            }
+
+            const key = cleanedContent.toLowerCase();
             if (!messageFrequency[key]) {
-                messageFrequency[key] = { count: 0, author: msg.author }; // attribute to first/most freq author later
+                messageFrequency[key] = { count: 0, author: msg.author };
             }
             messageFrequency[key].count++;
-            // Keep track of who says it most? Simplified: just keep the author of the current one, 
-            // statistically if it's repeated, the main author will show up eventually or we can improve this loop.
         }
+
     });
 
     // Post-process aggregations

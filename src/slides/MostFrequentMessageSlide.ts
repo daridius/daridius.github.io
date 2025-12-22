@@ -80,5 +80,10 @@ export class MostFrequentMessageSlide extends Slide {
         }
     }
 
-    onLeave(): void { }
+    onLeave(): void {
+        const elements = this.element?.querySelectorAll(".intro h2, .message-container");
+        if (elements) {
+            gsap.set(elements, { autoAlpha: 0 });
+        }
+    }
 }

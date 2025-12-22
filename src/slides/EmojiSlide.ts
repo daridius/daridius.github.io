@@ -71,5 +71,10 @@ export class EmojiSlide extends Slide {
         }
     }
 
-    onLeave(): void { }
+    onLeave(): void {
+        const elements = this.element?.querySelectorAll(".intro, .emoji-item");
+        if (elements) {
+            gsap.set(elements, { autoAlpha: 0 });
+        }
+    }
 }

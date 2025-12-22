@@ -91,32 +91,31 @@ export class StoryController {
         const fromEl = this.slideElements[fromIndex];
         const toEl = this.slideElements[toIndex];
 
-        fromSlideInstance.onLeave();
         this.currentSlideIndex = toIndex;
 
         const tl = gsap.timeline({
             onComplete: () => {
                 this.isAnimating = false;
                 gsap.set(fromEl, { autoAlpha: 0, zIndex: 0 });
+                fromSlideInstance.onLeave(); // Clean up state off-screen
             },
         });
 
         // Simple scale/fade transition
         tl.to(fromEl, {
             duration: 0.5,
-            opacity: 0,
+            autoAlpha: 0,
             scale: 0.95,
             ease: "power2.inOut",
         });
 
-        tl.set(toEl, { autoAlpha: 1, zIndex: 10 }, "<");
-
         tl.fromTo(
             toEl,
-            { opacity: 0, scale: 1.05 },
-            { duration: 0.5, opacity: 1, scale: 1, ease: "power2.out" },
+            { autoAlpha: 0, scale: 1.05, zIndex: 10 },
+            { duration: 0.5, autoAlpha: 1, scale: 1, ease: "power2.out" },
             "<",
         );
+
 
         // Notify new slide
         tl.add(() => {

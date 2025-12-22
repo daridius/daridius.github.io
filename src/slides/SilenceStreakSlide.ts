@@ -53,11 +53,16 @@ export class SilenceStreakSlide extends Slide {
         if (emoji) {
             gsap.fromTo(
                 emoji,
-                { scale: 0 },
-                { scale: 1, duration: 0.8, ease: "bounce.out", delay: 0.5 },
+                { scale: 0, autoAlpha: 0 },
+                { scale: 1, autoAlpha: 1, duration: 0.8, ease: "bounce.out", delay: 0.5 },
             );
         }
     }
 
-    onLeave(): void { }
+    onLeave(): void {
+        const elements = this.element?.querySelectorAll(".content, .emoji-reaction, .calendar");
+        if (elements) {
+            gsap.set(elements, { autoAlpha: 0 });
+        }
+    }
 }

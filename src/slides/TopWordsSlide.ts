@@ -61,5 +61,10 @@ export class TopWordsSlide extends Slide {
         }
     }
 
-    onLeave(): void { }
+    onLeave(): void {
+        const elements = this.element?.querySelectorAll(".title, .word-pill");
+        if (elements) {
+            gsap.set(elements, { autoAlpha: 0 });
+        }
+    }
 }

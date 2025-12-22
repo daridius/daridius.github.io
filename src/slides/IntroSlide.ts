@@ -17,7 +17,7 @@ export class IntroSlide extends Slide {
                 <h2 class="pre-title">El ${this.data.year} de</h2>
                 <h1 class="group-name">${this.data.group_name}</h1>
                 <h2 class="post-title">WHATSAPP WRAPPED</h2>
-                <h3 class="story-subtitle">Este año hubo mucho que contar...</h3>
+                <h3 class="story-subtitle">Toda una vida en un grupo, condensada en un año de mensajes...</h3>
             </div>
             <div class="decorations">
                 <span class="bubble b1" style="--d: 1s"></span>
@@ -31,28 +31,35 @@ export class IntroSlide extends Slide {
     onEnter(): void {
         const tl = gsap.timeline();
 
-        // Animate Container
+        // Animate Container with more flair
         tl.fromTo(
             this.element!.querySelector(".year-container"),
-            { scale: 0.8, autoAlpha: 0 },
+            { scale: 0.9, autoAlpha: 0, y: 30 },
             {
                 scale: 1,
                 autoAlpha: 1,
-                duration: 1,
-                ease: "slow(0.7, 0.7, false)",
+                y: 0,
+                duration: 1.2,
+                ease: "power3.out",
             }
         );
 
-        // Animate Bubbles
+        // Individual stagger for text elements if needed, but keeping it simple for now
+
+        // Animate Bubbles as subtle magic
         tl.fromTo(
             this.element!.querySelectorAll(".bubble"),
-            { scale: 0 },
-            { scale: 1, stagger: 0.2, duration: 0.8, ease: "back.out" },
-            "-=0.5"
+            { scale: 0, autoAlpha: 0 },
+            { scale: 1, autoAlpha: 1, stagger: 0.3, duration: 1, ease: "elastic.out(1, 0.7)" },
+            "-=0.8"
         );
     }
 
+
     onLeave(): void {
-        // Cleanup if needed
+        const elements = this.element?.querySelectorAll(".year-container, .bubble");
+        if (elements) {
+            gsap.set(elements, { autoAlpha: 0 });
+        }
     }
 }

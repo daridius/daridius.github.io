@@ -44,26 +44,33 @@ export class RankingSlide extends Slide {
         if (title) {
             gsap.fromTo(
                 title,
-                { opacity: 0, y: -20 },
-                { opacity: 1, y: 0, duration: 0.8 }
+                { autoAlpha: 0, y: -20 },
+                { autoAlpha: 1, y: 0, duration: 0.8 }
             );
         }
 
         if (cards && cards.length > 0) {
             gsap.fromTo(
                 cards,
-                { x: 50, opacity: 0 },
+                { y: 60, autoAlpha: 0, scale: 0.9 },
                 {
-                    x: 0,
-                    opacity: 1,
+                    y: 0,
+                    autoAlpha: 1,
+                    scale: 1,
                     stagger: 0.2,
-                    duration: 0.6,
+                    duration: 0.8,
                     delay: 0.3,
-                    ease: "power2.out",
+                    ease: "power3.out",
                 }
             );
         }
+
     }
 
-    onLeave(): void { }
+    onLeave(): void {
+        const elements = this.element?.querySelectorAll(".header-title, .rank-card");
+        if (elements) {
+            gsap.set(elements, { autoAlpha: 0 });
+        }
+    }
 }

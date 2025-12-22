@@ -76,5 +76,11 @@ export class ActivityStreakSlide extends Slide {
         }
     }
 
-    onLeave(): void { }
+    onLeave(): void {
+        // Hide all major animated groups
+        const elements = this.element?.querySelectorAll(".sub-title, .dates, .main-msg, .streak-badge");
+        if (elements) {
+            gsap.set(elements, { autoAlpha: 0 });
+        }
+    }
 }

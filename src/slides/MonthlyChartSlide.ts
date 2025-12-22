@@ -107,5 +107,10 @@ export class MonthlyChartSlide extends Slide {
         }
     }
 
-    onLeave(): void { }
+    onLeave(): void {
+        const elements = this.element?.querySelectorAll("h2, .chart-container, .peak-month-highlight");
+        if (elements) {
+            gsap.set(elements, { autoAlpha: 0 });
+        }
+    }
 }
