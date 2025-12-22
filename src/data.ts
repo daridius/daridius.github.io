@@ -69,6 +69,14 @@ export const wrappedData: WrappedData = {
         {
             "name": "Pedro",
             "messages": 1987
+        },
+        {
+            "name": "Seba",
+            "messages": 1542
+        },
+        {
+            "name": "Milla",
+            "messages": 1201
         }
     ],
 
@@ -89,7 +97,9 @@ export const wrappedData: WrappedData = {
     "top_emojis": [
         { "emoji": "❤️", "count": 512 },
         { "emoji": "😂", "count": 386 },
-        { "emoji": "🔥", "count": 214 }
+        { "emoji": "🔥", "count": 214 },
+        { "emoji": "🤔", "count": 185 },
+        { "emoji": "💀", "count": 142 }
     ],
 
     "messages_per_month": {

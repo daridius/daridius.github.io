@@ -13,54 +13,86 @@ export class OutroSlide extends Slide {
     getTemplate(): string {
         return `
         <div class="content-wrapper outro-slide-content">
-             <div class="content">
-                <h1>
-                    ¡Qué gran año para el grupo <span>${this.data.group_name}</span>!
-                </h1>
-                <div class="emoji">🥳</div>
-                <p>Nos vemos en 2026 con más historias.</p>
-
-                <div class="actions" style="margin-top: 40px;">
-                    <a href="/" style="background: var(--whatsapp-green); color: black; padding: 12px 24px; border-radius: 50px; text-decoration: none; font-weight: bold; font-size: 1.1rem;">Haz tu propio Wrapped</a>
+            <div class="year-container">
+                <h2 class="pre-title">Fue un gran año para</h2>
+                <h1 class="group-name">${this.data.group_name}</h1>
+                <h2 class="post-title">NOS VEMOS EN 2026</h2>
+                <h3 class="story-subtitle">Gracias por compartir tantos momentos este año...</h3>
+                
+                <div class="actions">
+                    <button class="btn-primary share-btn">Compartir este Wrapped</button>
+                    <a href="/" class="btn-secondary">Haz tu propio Wrapped</a>
                 </div>
+            </div>
+            <div class="decorations">
+                <span class="bubble b1" style="--d: 1s"></span>
+                <span class="bubble b2" style="--d: 2s"></span>
+                <span class="bubble b3" style="--d: 0.5s"></span>
             </div>
         </div>
         `;
     }
 
     onEnter(): void {
-        const h1 = this.element?.querySelector("h1");
-        const emoji = this.element?.querySelector(".emoji");
-        const p = this.element?.querySelector("p");
+        this.timeline = gsap.timeline();
 
-        if (h1) {
-            this.tweens.push(gsap.fromTo(
-                h1,
-                { autoAlpha: 0, y: 20 },
-                { autoAlpha: 1, y: 0, duration: 1 },
-            ));
-        }
-        if (emoji) {
-            this.tweens.push(gsap.fromTo(
-                emoji,
-                { scale: 0, rotate: -360, autoAlpha: 0 },
-                {
-                    scale: 1,
-                    rotate: 0,
-                    autoAlpha: 1,
-                    duration: 1.2,
-                    ease: "elastic.out(1, 0.3)",
-                },
-            ));
-        }
-        if (p) {
-            this.tweens.push(gsap.fromTo(p, { autoAlpha: 0 }, { autoAlpha: 1, delay: 1 }));
+        // Animate Container
+        this.timeline.fromTo(
+            this.element!.querySelector(".year-container"),
+            { scale: 0.9, autoAlpha: 0, y: 30 },
+            {
+                scale: 1,
+                autoAlpha: 1,
+                y: 0,
+                duration: 1.2,
+                ease: "power3.out",
+            }
+        );
+
+        // Animate Actions (buttons)
+        this.timeline.fromTo(
+            this.element!.querySelector(".actions"),
+            { autoAlpha: 0, y: 20 },
+            { autoAlpha: 1, y: 0, duration: 0.8 },
+            "-=0.6"
+        );
+
+        // Animate Bubbles
+        this.timeline.fromTo(
+            this.element!.querySelectorAll(".bubble"),
+            { scale: 0, autoAlpha: 0 },
+            { scale: 1, autoAlpha: 1, stagger: 0.3, duration: 1, ease: "elastic.out(1, 0.7)" },
+            "-=1"
+        );
+
+        // Share functionality
+        const shareBtn = this.element?.querySelector(".share-btn");
+        if (shareBtn) {
+            shareBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const url = window.location.href;
+                if (navigator.share) {
+                    navigator.share({
+                        title: `Wrapped de ${this.data.group_name}`,
+                        text: `¡Mira el resumen del año de nuestro grupo: ${this.data.group_name}!`,
+                        url: url
+                    }).catch(console.error);
+                } else {
+                    navigator.clipboard.writeText(url).then(() => {
+                        const originalText = shareBtn.textContent;
+                        shareBtn.textContent = "¡Copiado!";
+                        setTimeout(() => {
+                            shareBtn.textContent = originalText;
+                        }, 2000);
+                    });
+                }
+            });
         }
     }
 
     onLeave(): void {
         this.killAnimations();
-        const elements = this.element?.querySelectorAll("h1, .emoji, p");
+        const elements = this.element?.querySelectorAll(".year-container, .bubble, .actions");
         if (elements) {
             gsap.set(elements, { autoAlpha: 0 });
         }
