@@ -204,7 +204,7 @@ export function parseChat(chatContent: string): WrappedData {
     const topSenders = Object.entries(senderCounts)
         .map(([name, count]) => ({ name, messages: count }))
         .sort((a, b) => b.messages - a.messages)
-        .slice(0, 3);
+        .slice(0, 5);
 
     // Top Words
     const topWords = Object.entries(wordCounts)

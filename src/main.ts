@@ -4,7 +4,8 @@ import { wrappedData } from './data';
 import { decodeAndDecompress } from './utils/compression';
 import { IntroSlide } from './slides/IntroSlide';
 import { TotalsSlide } from './slides/TotalsSlide';
-import { RankingSlide } from './slides/RankingSlide';
+import { RankingBubblesSlide } from './slides/RankingBubblesSlide';
+import { SuspenseSlide } from './slides/SuspenseSlide';
 import { MostFrequentMessageSlide } from './slides/MostFrequentMessageSlide';
 import { TopWordsSlide } from './slides/TopWordsSlide';
 import { EmojiSlide } from './slides/EmojiSlide';
@@ -49,7 +50,12 @@ if (data) {
 
   story.addSlide(new IntroSlide(data));
   story.addSlide(new TotalsSlide(data));
-  story.addSlide(new RankingSlide(data));
+
+  // New Bubble Ranking Sequence
+  story.addSlide(new RankingBubblesSlide(data, false)); // Ranks 2-5
+  story.addSlide(new SuspenseSlide("Pero alguien habló más que todos..."));
+  story.addSlide(new RankingBubblesSlide(data, true));  // All + Winner reveal
+
   story.addSlide(new MostFrequentMessageSlide(data));
   story.addSlide(new TopWordsSlide(data));
   story.addSlide(new EmojiSlide(data));

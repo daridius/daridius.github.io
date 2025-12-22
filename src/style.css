@@ -1114,3 +1114,126 @@ body.upload-page {
     padding: 0 2px;
   }
 }
+/* --- Bubble Ranking Styles --- */
+.bubble-ranking-container {
+  position: relative;
+  width: 100%;
+  height: clamp(350px, 60vh, 500px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Ensure the container doesn't clip the overflowing names/crowns */
+  overflow: visible; 
+}
+
+.member-bubble {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(12px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: white;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+  opacity: 0;
+  visibility: hidden;
+  padding: 15px;
+  /* KEY: Allow content to stick out */
+  overflow: visible !important; 
+}
+
+/* Glassy Sheen */
+.member-bubble::after {
+  content: "";
+  position: absolute;
+  top: 10%;
+  left: 15%;
+  width: 35%;
+  height: 25%;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.4), transparent);
+  border-radius: 50%;
+  transform: rotate(-25deg);
+  pointer-events: none;
+}
+
+.member-bubble .b-name {
+  font-weight: 800;
+  font-size: clamp(0.7rem, 2.8vw, 1.4rem);
+  margin-bottom: 3px;
+  line-height: 1.1;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  /* KEY: No ellipsis, allow overflow */
+  white-space: nowrap;
+  overflow: visible !important;
+  text-overflow: clip !important;
+}
+
+.member-bubble .b-count {
+  font-size: clamp(0.6rem, 1.8vw, 0.95rem);
+  font-weight: 600;
+  color: var(--whatsapp-green);
+  background: rgba(0, 0, 0, 0.3);
+  padding: 2px 10px;
+  border-radius: 12px;
+  backdrop-filter: brightness(1.2);
+}
+
+/* Winner specific (Rank 1) is the only one with color */
+.member-bubble.rank-1 {
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.35), rgba(255, 215, 0, 0.1));
+  border: 2px solid rgba(255, 215, 0, 0.7);
+  z-index: 10;
+  box-shadow: 0 0 50px rgba(255, 215, 0, 0.2), inset 0 0 30px rgba(255, 215, 0, 0.1);
+}
+.member-bubble.rank-1 .b-name { color: #ffd700; font-size: clamp(1.2rem, 4vw, 1.8rem); }
+.member-bubble.rank-1 .b-count { color: #ffd700; }
+
+.member-bubble .b-crown {
+  position: absolute;
+  top: -30px;
+  font-size: 3rem;
+  filter: drop-shadow(0 5px 10px rgba(0, 0, 0, 0.5));
+  z-index: 20;
+  /* Ensure crown is never cut */
+  overflow: visible;
+}
+
+@keyframes float-bubble {
+  0%, 100% { transform: translate(-50%, -50%) translateY(0); }
+  50% { transform: translate(-50%, -50%) translateY(-10px); }
+}
+
+.member-bubble.floating {
+  animation: float-bubble 4s ease-in-out infinite;
+}
+
+/* --- Suspense Slide --- */
+.suspense-slide-content {
+  text-align: center;
+  padding: 2rem;
+}
+
+.suspense-slide-content h2 {
+  font-size: clamp(1.8rem, 8vw, 3rem);
+  line-height: 1.2;
+  font-weight: 800;
+  background: linear-gradient(to right, #fff, var(--whatsapp-green));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  opacity: 0;
+  visibility: hidden;
+}
+
+.bubble-ranking-slide .title {
+  text-align: center;
+  margin-bottom: 2rem;
+  font-size: clamp(1.2rem, 5vw, 1.8rem);
+  color: var(--text-secondary);
+  font-weight: 300;
+  opacity: 0;
+  visibility: hidden;
+}
