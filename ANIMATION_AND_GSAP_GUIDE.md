@@ -1,80 +1,84 @@
-# Guía de Solución de Parpadeos (FOUC) con GSAP y Astro
+# Guía Definitiva de Animaciones y GSAP (Anti-Glitch)
 
-Este documento detalla la solución implementada para prevenir el "Flash Of Unstyled Content" (o elementos que aparecen brevemente antes de animarse) en nuestras slides animadas.
+Este documento detalla la arquitectura implementada para lograr animaciones fluidas, sin parpadeos (FOUC) y a prueba de navegación rápida en la aplicación.
 
-## El Problema
-Al cargar la página o cambiar de slide, los elementos que debían animarse (aparecer con `fade-in`) a veces eran visibles por una fracción de segundo antes de que GSAP tomara el control y seteara su opacidad inicial a 0.
+## 1. El Problema del FOUC (Flash of Unstyled Content)
 
-## La Solución
+Al cargar una slide, los elementos animados a veces aparecían brevemente antes de que GSAP iniciara la animación.
 
-La solución consiste en una combinación de **CSS** y **GSAP `autoAlpha`**.
+**Solución:**
+*   **CSS**: Todos los elementos animados deben nacer ocultos.
+    ```css
+    .elemento-animado {
+        opacity: 0;
+        visibility: hidden; /* Crítico para que no intercepte clicks ni se pinte */
+    }
+    ```
+*   **GSAP**: Usar `autoAlpha` en lugar de `opacity`. `autoAlpha` maneja automáticamente `visibility: inherit` cuando la opacidad > 0 y `visibility: hidden` cuando es 0.
 
-### 1. CSS: Ocultar Inicialmente
-Siempre debemos ocultar los elementos animables desde el CSS usando tanto `opacity` como `visibility`.
+## 2. El Problema de la Navegación Rápida
 
-```css
-.elemento-animable {
-    /* ... otros estilos ... */
-    
-    /* CRÍTICO PARA EVITAR FLASH */
-    opacity: 0;
-    visibility: hidden;
+Si el usuario cambiaba de slide *mientras* una animación estaba ocurriendo, o volvía rápidamente a una slide anterior:
+1.  **Glitches**: Animaciones de entrada y salida "peleaban" por el control de la propiedad `opacity`.
+2.  **Estado Sucio**: Al volver a una slide, los elementos ya estaban visibles (del ciclo anterior), rompiendo la lógica `fromTo`.
+
+**Solución: Ciclo de Vida Robusto (`Lifecycle Hooks`)**
+
+Hemos implementado un sistema de 3 fases en la clase base `Slide` y `StoryController`.
+
+### Fase A: Entrada (`onEnter`)
+Iniciamos las animaciones y guardamos las referencias para poder matarlas después.
+
+```typescript
+// En tu Slide.ts
+onEnter(): void {
+    // IMPORTANTE: Asignar a this.timeline o this.tweens
+    this.timeline = gsap.timeline();
+
+    this.timeline.fromTo(
+        this.element!.querySelectorAll(".mi-elemento"),
+        { autoAlpha: 0, y: 50 },
+        { autoAlpha: 1, y: 0, duration: 1 }
+    );
 }
 ```
 
-**Por qué `visibility: hidden`?**
-A veces el navegador renderiza el elemento con `opacity: 0` pero si hay algún retraso en la carga del JS o renderizado, puede haber glitches. `visibility: hidden` asegura que el elemento no sea pintado en absoluto.
+### Fase B: Congelado Inmediato (`onExitStart`)
+Esta fase se dispara en el **instante exacto** que el usuario decide irse de la slide (click en navegación).
 
-### 2. GSAP: Usar `autoAlpha`
-En lugar de animar solo la propiedad `opacity`, usamos `autoAlpha`.
+Su función es **detener** cualquier animación interna que esté corriendo, para que no interfiera con la transición de salida global (fade-out del contenedor).
 
-**Incorrecto (puede causar flash):**
-```javascript
-gsap.fromTo(".elemento", 
-    { opacity: 0 }, 
-    { opacity: 1 }
-);
+```typescript
+// En Slide.ts (Clase Base)
+onExitStart(): void {
+    this.killAnimations(); // Mata this.timeline y todos los tweens
+}
 ```
 
-**Correcto (Solución sólida):**
-```javascript
-gsap.fromTo(".elemento", 
-    { autoAlpha: 0 }, 
-    { autoAlpha: 1 }
-);
-```
+### Fase C: Limpieza y Reset (`onLeave`)
+Esta fase ocurre **después** de que la slide ya desapareció de la pantalla completamente.
 
-**¿Qué hace `autoAlpha`?**
-Es una propiedad especial de GSAP que combina `opacity` y `visibility`.
-- Cuando `autoAlpha` es 0: Setea `opacity: 0` y `visibility: hidden`.
-- Cuando `autoAlpha` es > 0: Setea `visibility: inherit` y la `opacity` correspondiente.
-- Al terminar la animación (si llega a 0): Vuelve a poner `visibility: hidden`.
+Su función es resetear el estado de los elementos a "oculto" (`autoAlpha: 0`) para que la próxima vez que esta slide se monte, esté fresca y limpia.
 
-### 3. Scoping (Buenas Prácticas)
-Para evitar conflictos entre slides (ej. si dos slides tienen una clase `.title`), siempre busca los elementos dentro del slide actual:
-
-```javascript
-const slide = document.querySelector(".mi-slide");
-
-slide.addEventListener("slide-enter", () => {
-    // Buscar SOLO dentro de este slide
-    const titulo = slide.querySelector(".title");
+```typescript
+// En tu Slide.ts
+onLeave(): void {
+    this.killAnimations(); // Por seguridad
     
-    gsap.fromTo(titulo, 
-        { autoAlpha: 0, y: -20 },
-        { autoAlpha: 1, y: 0 }
-    );
-});
+    // Resetear explícitamente a estado inicial oculto
+    const elements = this.element?.querySelectorAll(".mi-elemento");
+    if (elements) {
+        gsap.set(elements, { autoAlpha: 0 });
+    }
+}
 ```
 
----
-**Resumen:**
-1. CSS: `opacity: 0; visibility: hidden;`
-73. 2. JS: `gsap.fromTo(..., { autoAlpha: 0 }, { autoAlpha: 1 })`
+## Resumen de Implementación en Slides
 
-## Archivos de Ejemplo
-Puedes ver esta corrección aplicada en:
-- `src/components/MostFrequentMessageSlide.astro` (Corrección del Header)
-- `src/components/TopWordsSlide.astro` (Corrección de Pills y Título)
-- `src/components/EmojiSlide.astro` (Corrección de Emojis y Título)
-- `src/components/OutroSlide.astro` (Corrección Final)
+Cada nueva slide debe seguir este patrón:
+
+1.  **CSS**: `.clase { opacity: 0; visibility: hidden; }`
+2.  **TS `onEnter`**: Usar `this.timeline` o `this.tweens.push(...)`. Usar `{ autoAlpha: 0 }` en el `from`.
+3.  **TS `onLeave`**: Llamar `this.killAnimations()` y hacer `gsap.set(..., { autoAlpha: 0 })` a los elementos.
+
+Este protocolo asegura que no importa qué tan rápido clickee el usuario, las animaciones siempre se verán limpias.
