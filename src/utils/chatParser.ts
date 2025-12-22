@@ -37,10 +37,6 @@ const TIMESTAMP_REGEXES = [
 const IGNORE_PATTERNS = [
     /Messages and calls are end-to-end encrypted/i,
     /Mensajes y llamadas están cifrados de extremo a extremo/i,
-    /<Media omitted>/i,
-    /<Archivo omitido>/i,
-    /<Multimedia omitido>/i,
-    /multimedia omitida/i,
     /This message was edited/i,
     /Este mensaje fue editado/i,
     /You deleted this message/i,
@@ -61,6 +57,22 @@ const IGNORE_PATTERNS = [
     /perdiste una videollamada/i,
     /Waiting for this message/i,
     /Esperando este mensaje/i
+];
+
+// Patterns to identify multimedia messages (they count as messages but not for word/char stats)
+const MULTIMEDIA_PATTERNS = [
+    /<Media omitted>/i,
+    /<Archivo omitido>/i,
+    /<Multimedia omitido>/i,
+    /multimedia omitida/i,
+    /imagen omitida/i,
+    /video omitido/i,
+    /audio omitido/i,
+    /sticker omitido/i,
+    /GIF omitido/i,
+    /\u200eimagen omitida/i,
+    /\u200evideo omitido/i,
+    /\u200eaudio omitido/i
 ];
 
 function parseLine(line: string): Message | null {
@@ -122,7 +134,7 @@ export function parseChat(chatContent: string): WrappedData {
     }
 
     // Calculate Statistics
-    const totalMessages = messages.length;
+    let totalMessages = 0; // Will count only messages from wrappedYear
     let totalWords = 0;
     let totalChars = 0;
 
@@ -145,23 +157,37 @@ export function parseChat(chatContent: string): WrappedData {
     const lastDate = dates[dates.length - 1];
     const wrappedYear = lastDate.getFullYear();
 
+    console.log(`📅 Analyzing Wrapped for year: ${wrappedYear}`);
+    console.log(`📊 Total messages in file: ${messages.length}`);
+
     messages.forEach(msg => {
         if (msg.date.getFullYear() !== wrappedYear) return; // Only process the target year for detailed stats
 
-        // Totals
-        totalWords += msg.content.split(/\s+/).length;
-        totalChars += msg.content.length;
+        // Count this message (only from target year)
+        totalMessages++;
 
-        // Senders
+        // Check if this is a multimedia message
+        const isMultimedia = MULTIMEDIA_PATTERNS.some(p => p.test(msg.content));
+
+        // Senders (count all messages including multimedia)
         senderCounts[msg.author] = (senderCounts[msg.author] || 0) + 1;
 
-        // Monthly stats
+        // Monthly stats (count all messages including multimedia)
         const month = msg.date.getMonth() + 1; // 1-12
         messagesPerMonth[month] = (messagesPerMonth[month] || 0) + 1;
 
-        // Daily stats (for peak day)
+        // Daily stats (for peak day) (count all messages including multimedia)
         const dayKey = msg.date.toISOString().split('T')[0];
         messagesPerDay[dayKey] = (messagesPerDay[dayKey] || 0) + 1;
+
+        // Skip word/char/emoji analysis for multimedia messages
+        if (isMultimedia) {
+            return;
+        }
+
+        // Totals (only for text messages)
+        totalWords += msg.content.split(/\s+/).filter(w => w.length > 0).length;
+        totalChars += msg.content.length;
 
         // Word Analysis (simple tokenization)
         const words = msg.content.toLowerCase().replace(/[^\w\s\u00C0-\u00FF]/g, '').split(/\s+/);
@@ -197,6 +223,10 @@ export function parseChat(chatContent: string): WrappedData {
         }
 
     });
+
+    console.log(`✅ Messages from ${wrappedYear}: ${totalMessages}`);
+    console.log(`📝 Words counted: ${totalWords}`);
+    console.log(`🔤 Characters counted: ${totalChars}`);
 
     // Post-process aggregations
 
