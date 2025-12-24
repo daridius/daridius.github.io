@@ -656,6 +656,12 @@ export function calculateStats(result: ParsedChatResult, groupName: string): Wra
     // PASO 1: Extraer lista de participantes
     const participants = extractParticipants(result);
     
+    // Crear mapa de nombre -> índice
+    const nameToIndex = new Map<string, number>();
+    participants.forEach((name, index) => {
+        nameToIndex.set(name, index);
+    });
+    
     console.log('\n========================================');
     console.log('👥 PARTICIPANTES DEL GRUPO:');
     console.log('========================================');
@@ -669,6 +675,7 @@ export function calculateStats(result: ParsedChatResult, groupName: string): Wra
     const stats: WrappedData = {
         year: 2025,
         group_name: groupName,
+        participants: participants,
     };
     
     // Calcular cada estadística individualmente
@@ -676,16 +683,37 @@ export function calculateStats(result: ParsedChatResult, groupName: string): Wra
     if (totals) stats.totals = totals;
     
     const topSenders = getTopSenders(result);
-    if (topSenders) stats.top_senders = topSenders;
+    if (topSenders) {
+        stats.top_senders = topSenders.map(s => ({
+            nameIndex: nameToIndex.get(s.name)!,
+            messages: s.messages
+        }));
+    }
     
     const topDeleters = getTopDeleters(result);
-    if (topDeleters) stats.top_deleters = topDeleters;
+    if (topDeleters) {
+        stats.top_deleters = topDeleters.map(d => ({
+            nameIndex: nameToIndex.get(d.name)!,
+            deleted: d.deleted
+        }));
+    }
     
     const topEditors = getTopEditors(result);
-    if (topEditors) stats.top_editors = topEditors;
+    if (topEditors) {
+        stats.top_editors = topEditors.map(e => ({
+            nameIndex: nameToIndex.get(e.name)!,
+            edited: e.edited
+        }));
+    }
     
     const mostFrequent = getMostFrequentMessage(result);
-    if (mostFrequent) stats.most_frequent_message = mostFrequent;
+    if (mostFrequent) {
+        stats.most_frequent_message = mostFrequent.map(m => ({
+            authorIndex: nameToIndex.get(m.author)!,
+            content: m.content,
+            count: m.count
+        }));
+    }
     
     const topWords = getTopWords(result);
     if (topWords) stats.top_words = topWords;
@@ -709,28 +737,69 @@ export function calculateStats(result: ParsedChatResult, groupName: string): Wra
     if (topStickers) stats.top_stickers = topStickers;
     
     const topStickerSenders = getTopStickerSenders(result);
-    if (topStickerSenders) stats.top_sticker_senders = topStickerSenders;
+    if (topStickerSenders) {
+        stats.top_sticker_senders = topStickerSenders.map(s => ({
+            nameIndex: nameToIndex.get(s.name)!,
+            sticker: s.sticker,
+            count: s.count
+        }));
+    }
     
     const mostStickerSender = getMostStickerSender(result);
-    if (mostStickerSender) stats.most_sticker_sender = mostStickerSender;
+    if (mostStickerSender) {
+        stats.most_sticker_sender = {
+            nameIndex: nameToIndex.get(mostStickerSender.name)!,
+            stickers: mostStickerSender.stickers
+        };
+    }
     
     const mostAudioSender = getMostAudioSender(result);
-    if (mostAudioSender) stats.most_audio_sender = mostAudioSender;
+    if (mostAudioSender) {
+        stats.most_audio_sender = {
+            nameIndex: nameToIndex.get(mostAudioSender.name)!,
+            audios: mostAudioSender.audios
+        };
+    }
     
     const mostLocationSender = getMostLocationSender(result);
-    if (mostLocationSender) stats.most_location_sender = mostLocationSender;
+    if (mostLocationSender) {
+        stats.most_location_sender = {
+            nameIndex: nameToIndex.get(mostLocationSender.name)!,
+            locations: mostLocationSender.locations
+        };
+    }
     
     const mostPollStarter = getMostPollStarter(result);
-    if (mostPollStarter) stats.most_poll_starter = mostPollStarter;
+    if (mostPollStarter) {
+        stats.most_poll_starter = {
+            nameIndex: nameToIndex.get(mostPollStarter.name)!,
+            polls: mostPollStarter.polls
+        };
+    }
     
     const mostImageSender = getMostImageSender(result);
-    if (mostImageSender) stats.most_image_sender = mostImageSender;
+    if (mostImageSender) {
+        stats.most_image_sender = {
+            nameIndex: nameToIndex.get(mostImageSender.name)!,
+            images: mostImageSender.images
+        };
+    }
     
     const mostVideoSender = getMostVideoSender(result);
-    if (mostVideoSender) stats.most_video_sender = mostVideoSender;
+    if (mostVideoSender) {
+        stats.most_video_sender = {
+            nameIndex: nameToIndex.get(mostVideoSender.name)!,
+            videos: mostVideoSender.videos
+        };
+    }
     
     const mostDocumentSender = getMostDocumentSender(result);
-    if (mostDocumentSender) stats.most_document_sender = mostDocumentSender;
+    if (mostDocumentSender) {
+        stats.most_document_sender = {
+            nameIndex: nameToIndex.get(mostDocumentSender.name)!,
+            documents: mostDocumentSender.documents
+        };
+    }
     
     console.log('📊 ESTADÍSTICAS CALCULADAS:');
     const calculatedStats = Object.keys(stats).filter(k => k !== 'year' && k !== 'group_name');

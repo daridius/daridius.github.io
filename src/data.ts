@@ -1,26 +1,27 @@
 export interface WrappedData {
     year: number;
     group_name: string;
+    participants: string[];
     totals?: {
         messages: number;
         words: number;
         characters: number;
     };
-    new_people?: string[];
+    new_people?: number[];
     top_senders?: {
-        name: string;
+        nameIndex: number;
         messages: number;
     }[];
     top_deleters?: {
-        name: string;
+        nameIndex: number;
         deleted: number;
     }[];
     top_editors?: {
-        name: string;
+        nameIndex: number;
         edited: number;
     }[];
     most_frequent_message?: {
-        author: string;
+        authorIndex: number;
         content: string;
         count: number;
     }[];
@@ -52,36 +53,36 @@ export interface WrappedData {
         count: number;
     }[];
     top_sticker_senders?: {
-        name: string;
+        nameIndex: number;
         sticker: string;
         count: number;
     }[];
     most_sticker_sender?: {
-        name: string;
+        nameIndex: number;
         stickers: number;
     };
     most_audio_sender?: {
-        name: string;
+        nameIndex: number;
         audios: number;
     };
     most_location_sender?: {
-        name: string;
+        nameIndex: number;
         locations: number;
     };
     most_poll_starter?: {
-        name: string;
+        nameIndex: number;
         polls: number;
     };
     most_image_sender?: {
-        name: string;
+        nameIndex: number;
         images: number;
     };
     most_video_sender?: {
-        name: string;
+        nameIndex: number;
         videos: number;
     };
     most_document_sender?: {
-        name: string;
+        nameIndex: number;
         documents: number;
     };
 }
@@ -89,6 +90,16 @@ export interface WrappedData {
 export const wrappedData: WrappedData = {
     "year": 2025,
     "group_name": "Los Real 💯",
+    "participants": [
+        "Nacho",
+        "Fran",
+        "Pedro",
+        "Seba",
+        "Milla",
+        "Camila",
+        "Sebastián",
+        "Vale"
+    ],
 
     "totals": {
         "messages": 18342,
@@ -96,40 +107,38 @@ export const wrappedData: WrappedData = {
         "characters": 1348921
     },
 
-    "new_people": [
-        "Camila",
-        "Sebastián",
-        "Vale"
-    ],
+    "new_people": [5, 6, 7],
 
     "top_senders": [
         {
-            "name": "Nacho",
+            "nameIndex": 0,
             "messages": 3610
         },
         {
-            "name": "Fran",
+            "nameIndex": 1,
             "messages": 2541
         },
         {
-            "name": "Pedro",
+            "nameIndex": 2,
             "messages": 1987
         },
         {
-            "name": "Seba",
+            "nameIndex": 3,
             "messages": 1542
         },
         {
-            "name": "Milla",
+            "nameIndex": 4,
             "messages": 1201
         }
     ],
 
-    "most_frequent_message": {
-        "author": "Nacho",
-        "count": 142,
-        "content": "Jajajaja ctm"
-    },
+    "most_frequent_message": [
+        {
+            "authorIndex": 0,
+            "count": 142,
+            "content": "Jajajaja ctm"
+        }
+    ],
 
     "top_words": [
         { "word": "jajaja", "count": 412 },
