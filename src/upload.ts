@@ -121,6 +121,12 @@ async function processFile(file: File) {
                 }
             }
             console.log("📦 Sticker extraction complete");
+        } else {
+            // Si no hay ZIP (solo txt), no tenemos las imágenes de los stickers.
+            // Eliminamos estas categorías para evitar slides con imágenes rotas.
+            console.log("⚠️ No ZIP loaded. Removing media-dependent categories (stickers).");
+            delete data.top_stickers;
+            delete data.top_sticker_senders;
         }
         
         console.log('\n✅ ANÁLISIS COMPLETADO');
