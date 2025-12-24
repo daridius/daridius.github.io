@@ -48,12 +48,12 @@ async function processFile(file: File) {
 
         // Fase 1: Parsear mensajes con whatsapp-chat-parser
         console.log('\n🚀 COMENZANDO ANÁLISIS DEL CHAT...');
-        const messages = parseWhatsAppChat(text);
+        const result = parseWhatsAppChat(text);
         const groupName = extractGroupName(text);
         
         // Fase 2: Calcular estadísticas
         console.log('\n📊 CALCULANDO ESTADÍSTICAS...');
-        const data = calculateStats(messages, groupName);
+        const data = calculateStats(result, groupName);
         
         console.log('\n✅ ANÁLISIS COMPLETADO');
         console.log(`   Año: ${data.year}`);

@@ -1,43 +1,88 @@
 export interface WrappedData {
     year: number;
     group_name: string;
-    totals: {
+    totals?: {
         messages: number;
         words: number;
         characters: number;
     };
-    new_people: string[];
-    top_senders: {
+    new_people?: string[];
+    top_senders?: {
         name: string;
         messages: number;
     }[];
-    most_frequent_message: {
+    top_deleters?: {
+        name: string;
+        deleted: number;
+    }[];
+    top_editors?: {
+        name: string;
+        edited: number;
+    }[];
+    most_frequent_message?: {
         author: string;
         content: string;
         count: number;
-    };
-    top_words: {
+    }[];
+    top_words?: {
         word: string;
         count: number;
     }[];
-    top_emojis: {
+    top_emojis?: {
         emoji: string;
         count: number;
     }[];
-    messages_per_month: Record<number, number>;
-    peak_activity_day: {
+    messages_per_month?: Record<number, number>;
+    peak_activity_day?: {
         date: string;
         messages: number;
     };
-    longest_silence_streak: {
+    longest_silence_streak?: {
         from: string;
         to: string;
         days: number;
     };
-    longest_activity_streak: {
+    longest_activity_streak?: {
         from: string;
         to: string;
         days: number;
+    };
+    top_stickers?: {
+        content: string;
+        count: number;
+    }[];
+    top_sticker_senders?: {
+        name: string;
+        sticker: string;
+        count: number;
+    }[];
+    most_sticker_sender?: {
+        name: string;
+        stickers: number;
+    };
+    most_audio_sender?: {
+        name: string;
+        audios: number;
+    };
+    most_location_sender?: {
+        name: string;
+        locations: number;
+    };
+    most_poll_starter?: {
+        name: string;
+        polls: number;
+    };
+    most_image_sender?: {
+        name: string;
+        images: number;
+    };
+    most_video_sender?: {
+        name: string;
+        videos: number;
+    };
+    most_document_sender?: {
+        name: string;
+        documents: number;
     };
 }
 

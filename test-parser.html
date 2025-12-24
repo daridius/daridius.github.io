@@ -231,6 +231,28 @@
         .show-more:hover {
             color: #764ba2;
         }
+
+        .participants-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .participant-card {
+            background: #f8f9fa;
+            padding: 15px 20px;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .participant-number {
+            color: #667eea;
+            font-weight: 600;
+            margin-right: 8px;
+        }
     </style>
 </head>
 <body>
@@ -270,7 +292,12 @@
             </div>
 
             <div class="result-section">
-                <h2>💬 Mensajes Normales</h2>
+                <h2>� Participantes</h2>
+                <div id="participants-content"></div>
+            </div>
+
+            <div class="result-section">
+                <h2>�💬 Mensajes Normales</h2>
                 <div id="messages-content"></div>
             </div>
 

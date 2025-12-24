@@ -69,6 +69,8 @@ export interface ParsedMessage {
     attachment?: {
         fileName: string;
     };
+    edited?: boolean; // true si el mensaje fue editado
+    deleted?: boolean; // true si el mensaje fue eliminado
 }
 
 /**
@@ -108,8 +110,6 @@ export interface MediaMessage {
 
 export type SystemType = 
     | 'encryption'
-    | 'deleted'
-    | 'edited'
     | 'group_created'
     | 'group_renamed'
     | 'user_added'
@@ -295,6 +295,20 @@ function detectEdited(content: string): boolean {
     return Object.values(patterns).some(p => p.test(content));
 }
 
+/**
+ * Limpia el indicador de edición del contenido de un mensaje
+ * Retorna el contenido limpio
+ */
+function cleanEditedMessage(content: string): string {
+    // Remover patrones de edición
+    return content
+        .replace(/Mensaje editado a <This message was edited>/i, '')
+        .replace(/Mensaje editado a <Se editó este mensaje\.>/i, '')
+        .replace(/<This message was edited>/i, '')
+        .replace(/<Se editó este mensaje\.>/i, '')
+        .trim();
+}
+
 function detectGroupCreated(content: string): boolean {
     const patterns = {
         ANDROID_EN: /^You created this group$/i,
@@ -396,12 +410,6 @@ function detectSystemMessage(
 ): SystemMessage | null {
     if (detectEncryption(content)) {
         return { date, author, type: 'encryption', content };
-    }
-    if (detectDeleted(content)) {
-        return { date, author, type: 'deleted', content };
-    }
-    if (detectEdited(content)) {
-        return { date, author, type: 'edited', content };
     }
     if (detectGroupCreated(content)) {
         return { date, author, type: 'group_created', content };
@@ -514,12 +522,27 @@ export function parseWhatsAppChat(chatContent: string): ParsedChatResult {
             return;
         }
         
+        // Detectar mensajes editados y limpiar el contenido
+        const isEdited = detectEdited(content);
+        const isDeleted = detectDeleted(content);
+        
+        // Si está editado, limpiar el texto de edición
+        // Si está eliminado, dejar contenido vacío
+        let cleanContent = content;
+        if (isDeleted) {
+            cleanContent = '';
+        } else if (isEdited) {
+            cleanContent = cleanEditedMessage(content);
+        }
+        
         // Si no es media ni system, es mensaje normal
         messages.push({
             date,
             author,
-            content,
-            attachment: msg.attachment
+            content: cleanContent,
+            attachment: msg.attachment,
+            edited: isEdited || undefined,
+            deleted: isDeleted || undefined
         });
     });
     
