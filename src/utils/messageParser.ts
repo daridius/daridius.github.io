@@ -135,6 +135,57 @@ export interface ParsedChatResult {
 }
 
 /**
+ * Detecta el tipo de media por la extensión del archivo adjunto
+ * Los archivos de WhatsApp tienen prefijos que indican el tipo:
+ * - IMG-*.jpg/jpeg/png → image
+ * - VID-*.mp4/3gp → video
+ * - PTT-*.opus → audio (Push To Talk - nota de voz)
+ * - AUD-*.opus/aac/m4a/mp3 → audio
+ * - STK-*.webp → sticker
+ * - *.pdf/doc/docx/xls/xlsx/ppt/pptx → document
+ * - *.vcf → contact
+ * - *.zip/rar/7z → document
+ */
+function detectMediaByAttachment(
+    attachment: { fileName: string },
+    author: string | null,
+    date: Date
+): MediaMessage | null {
+    const fileName = attachment.fileName.toLowerCase();
+    
+    // Extraer extensión
+    const ext = fileName.split('.').pop() || '';
+    
+    // Detectar por prefijo de WhatsApp
+    if (fileName.startsWith('img-') || ['jpg', 'jpeg', 'png', 'gif', 'bmp'].includes(ext)) {
+        return { date, author, type: 'image', fileName: attachment.fileName };
+    }
+    
+    if (fileName.startsWith('vid-') || ['mp4', '3gp', 'avi', 'mov', 'mkv'].includes(ext)) {
+        return { date, author, type: 'video', fileName: attachment.fileName };
+    }
+    
+    if (fileName.startsWith('ptt-') || fileName.startsWith('aud-') || ['opus', 'aac', 'm4a', 'mp3', 'ogg', 'wav'].includes(ext)) {
+        return { date, author, type: 'audio', fileName: attachment.fileName };
+    }
+    
+    if (fileName.startsWith('stk-') || ext === 'webp') {
+        return { date, author, type: 'sticker', fileName: attachment.fileName };
+    }
+    
+    if (ext === 'vcf') {
+        return { date, author, type: 'contact', fileName: attachment.fileName };
+    }
+    
+    if (['pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'txt', 'zip', 'rar', '7z'].includes(ext)) {
+        return { date, author, type: 'document', fileName: attachment.fileName };
+    }
+    
+    // Si no se puede clasificar, tipo genérico omitted
+    return { date, author, type: 'omitted', fileName: attachment.fileName };
+}
+
+/**
  * Detecta mensajes de media omitida
  * Categoriza independientemente del OS (iOS/Android) o idioma (EN/ES)
  * 
@@ -149,6 +200,13 @@ function detectOmittedMedia(
     date: Date,
     attachment?: { fileName: string }
 ): MediaMessage | null {
+    // Si termina con "(archivo adjunto)", "(file attached)" o patrón iOS "<adjunto: ...>" / "<attached: ...>"
+    if (/\(archivo adjunto\)$/i.test(content) || 
+        /\(file attached\)$/i.test(content) ||
+        /\u200e?<(adjunto|attached):\s*.+>$/i.test(content)) {
+        return { date, author, type: 'omitted', fileName: attachment?.fileName || null };
+    }
+    
     const patterns = {
         // iOS/Android English - Generic
         media_generic: /<Media omitted>|<Multimedia omitido>|<Archivo omitido>/i,
@@ -402,17 +460,34 @@ export function parseWhatsAppChat(chatContent: string): ParsedChatResult {
     })));
     console.log('========================================\n');
     
+    // OPTIMIZACIÓN: Filtrar solo mensajes del 2025
+    const messages2025 = rawMessages.filter(msg => {
+        if (!msg.date) return false;
+        return msg.date.getFullYear() === 2025;
+    });
+    
+    console.log(`🔍 FILTRO: ${rawMessages.length} mensajes → ${messages2025.length} mensajes del 2025\n`);
+    
     // PASO 2: Clasificar mensajes en 3 categorías
     const messages: ParsedMessage[] = [];
     const media: MediaMessage[] = [];
     const system: SystemMessage[] = [];
     
-    rawMessages.forEach(msg => {
+    messages2025.forEach(msg => {
         const content = msg.message || '';
         const author = msg.author || null;
         const date = msg.date;
         
-        // Detectar media omitida
+        // PRIMER FILTRO: Detectar archivos adjuntos reales
+        if (msg.attachment) {
+            const attachmentMedia = detectMediaByAttachment(msg.attachment, author, date);
+            if (attachmentMedia) {
+                media.push(attachmentMedia);
+                return;
+            }
+        }
+        
+        // Detectar media omitida (sin archivo adjunto)
         const mediaDetected = detectOmittedMedia(content, author, date, msg.attachment);
         if (mediaDetected) {
             media.push(mediaDetected);
@@ -429,6 +504,12 @@ export function parseWhatsAppChat(chatContent: string): ParsedChatResult {
         // CATCH-ALL: Si no tiene autor, whatsapp-chat-parser lo detectó como system message
         // Lo clasificamos como undefined para investigarlo
         if (!author) {
+            system.push({ date, author, type: 'undefined', content });
+            return;
+        }
+        
+        // CATCH-ALL FINAL: Si contiene U+200E en cualquier parte, probablemente es system message
+        if (content.includes('\u200e')) {
             system.push({ date, author, type: 'undefined', content });
             return;
         }
