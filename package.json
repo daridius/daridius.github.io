@@ -15,6 +15,7 @@
   "dependencies": {
     "gsap": "^3.14.2",
     "jszip": "^3.10.1",
-    "lz-string": "^1.5.0"
+    "lz-string": "^1.5.0",
+    "whatsapp-chat-parser": "^4.0.2"
   }
 }

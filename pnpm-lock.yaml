@@ -17,6 +17,9 @@ importers:
       lz-string:
         specifier: ^1.5.0
         version: 1.5.0
+      whatsapp-chat-parser:
+        specifier: ^4.0.2
+        version: 4.0.2
     devDependencies:
       typescript:
         specifier: ~5.9.3
@@ -435,6 +438,10 @@ packages:
       yaml:
         optional: true
 
+  whatsapp-chat-parser@4.0.2:
+    resolution: {integrity: sha512-p5msNP4bUrgYjNfwfE7nBkdaG/lRwZjp8YE65CW3F9vxvQg2ZCImIusUHWWKbYxxHd737N/lEfixKPJHZLfSdw==}
+    engines: {node: '>=8.0.0'}
+
 snapshots:
 
   '@esbuild/aix-ppc64@0.27.2':
@@ -725,3 +732,5 @@ snapshots:
       tinyglobby: 0.2.15
     optionalDependencies:
       fsevents: 2.3.3
+
+  whatsapp-chat-parser@4.0.2: {}

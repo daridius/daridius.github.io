@@ -1,5 +1,6 @@
 import JSZip from "jszip";
-import { parseChat } from "./utils/chatParser";
+import { parseWhatsAppChat, extractGroupName } from "./utils/messageParser";
+import { calculateStats } from "./utils/statsCalculator";
 import { compressAndEncode } from "./utils/compression";
 
 console.log("🚀 Upload Script Initialized");
@@ -45,7 +46,19 @@ async function processFile(file: File) {
         setStatus("Analyzing messages...", "process");
         await new Promise((r) => setTimeout(r, 400));
 
-        const data = parseChat(text);
+        // Fase 1: Parsear mensajes con whatsapp-chat-parser
+        console.log('\n🚀 COMENZANDO ANÁLISIS DEL CHAT...');
+        const messages = parseWhatsAppChat(text);
+        const groupName = extractGroupName(text);
+        
+        // Fase 2: Calcular estadísticas
+        console.log('\n📊 CALCULANDO ESTADÍSTICAS...');
+        const data = calculateStats(messages, groupName);
+        
+        console.log('\n✅ ANÁLISIS COMPLETADO');
+        console.log(`   Año: ${data.year}`);
+        console.log(`   Grupo: ${data.group_name}`);
+        console.log(`   Mensajes: ${data.totals.messages}`);
         console.log("✅ Chat parsed successfully:", data);
 
         showNamesEditor(data);
