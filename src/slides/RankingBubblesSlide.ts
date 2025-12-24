@@ -13,7 +13,7 @@ export class RankingBubblesSlide extends Slide {
     }
 
     getTemplate(): string {
-        const sorted = [...this.data.top_senders].sort((a, b) => b.messages - a.messages);
+        const sorted = [...this.data.top_senders!].sort((a, b) => b.messages - a.messages);
 
         // Positions for Top 5 (offsets from center)
         const positions = [
@@ -39,12 +39,13 @@ export class RankingBubblesSlide extends Slide {
 
             const pos = positions[i];
             const isWinner = rank === 1;
+            const name = this.data.participants[sender.nameIndex];
 
             return `
                 <div class="member-bubble rank-${rank} ${isWinner ? 'is-winner' : ''}" 
                     style="width: ${size}px; height: ${size}px; top: ${pos.top}; left: ${pos.left}; transform: translate(-50%, -50%)">
                     ${isWinner ? '<div class="b-crown">👑</div>' : ''}
-                    <div class="b-name">${sender.name}</div>
+                    <div class="b-name">${name}</div>
                     <div class="b-count">${sender.messages.toLocaleString()}</div>
                 </div>
             `;

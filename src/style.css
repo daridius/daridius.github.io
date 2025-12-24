@@ -1151,3 +1151,42 @@ body.upload-page {
   margin-top: 10px;
   width: 100%;
 }
+
+/* --- New Slides Animations Fix (FOUC Prevention) --- */
+
+/* Generic Winner Slide */
+.generic-winner-slide .intro h2,
+.generic-winner-slide .winner-emoji,
+.generic-winner-slide .winner-name,
+.generic-winner-slide .winner-stat {
+    opacity: 0;
+    visibility: hidden;
+}
+
+/* Generic Ranking Slide */
+.generic-ranking-slide .intro h2,
+.generic-ranking-slide .ranking-item {
+    opacity: 0;
+    visibility: hidden;
+}
+
+/* Top Stickers Slide */
+.top-stickers-slide .intro h2,
+.top-stickers-slide .sticker-item {
+    opacity: 0;
+    visibility: hidden;
+}
+
+/* Sticker People Slide */
+.sticker-people-slide .intro h2,
+.sticker-people-slide .sticker-user-item {
+    opacity: 0;
+    visibility: hidden;
+}
+
+/* New People Slide */
+.new-people-slide .intro h2,
+.new-people-slide .people-list {
+    opacity: 0;
+    visibility: hidden;
+}

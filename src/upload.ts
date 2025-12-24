@@ -1,7 +1,6 @@
 import JSZip from "jszip";
 import { parseWhatsAppChat, extractGroupName } from "./utils/messageParser";
 import { calculateStats } from "./utils/statsCalculator";
-import { compressAndEncode } from "./utils/compression";
 
 console.log("🚀 Upload Script Initialized");
 
@@ -24,15 +23,17 @@ async function processFile(file: File) {
 
     try {
         let text = "";
+        let loadedZip: JSZip | null = null;
+        
         await new Promise((r) => setTimeout(r, 600));
 
         if (file.name.endsWith(".zip")) {
             console.log("📦 ZIP detected, unzipping...");
             const zip = new JSZip();
-            const loaded = await zip.loadAsync(file);
-            console.log("📦 ZIP Content:", Object.keys(loaded.files));
+            loadedZip = await zip.loadAsync(file);
+            console.log("📦 ZIP Content:", Object.keys(loadedZip.files));
 
-            const chatFile = Object.values(loaded.files).find(
+            const chatFile = Object.values(loadedZip.files).find(
                 (f) => f.name.includes("_chat.txt") || f.name.endsWith(".txt")
             );
 
@@ -51,14 +52,83 @@ async function processFile(file: File) {
         const result = parseWhatsAppChat(text);
         const groupName = extractGroupName(text);
         
-        // Fase 2: Calcular estadísticas
+        // Fase 2: Calcular estadísticas (sin imágenes aún)
         console.log('\n📊 CALCULANDO ESTADÍSTICAS...');
         const data = calculateStats(result, groupName);
+
+        // Fase 3: Extraer SOLO los stickers necesarios del ZIP
+        if (loadedZip) {
+            console.log("📦 Extracting specific stickers...");
+            const files = loadedZip.files;
+
+            // Helper para buscar y extraer archivo
+            const extractFile = async (fileName: string) => {
+                // Buscar archivo que termine con el nombre (para manejar carpetas dentro del zip)
+                const fileInZip = Object.values(files).find(f => f.name.endsWith(fileName) && !f.name.startsWith("__MACOSX"));
+                if (fileInZip) {
+                    return await fileInZip.async("base64");
+                }
+                return null;
+            };
+
+            // 1. Top Stickers
+            if (data.top_stickers) {
+                const validStickers = [];
+                for (const item of data.top_stickers) {
+                    // item.content tiene el nombre del archivo temporalmente
+                    const fileName = item.content;
+                    if (fileName && fileName !== 'unknown') {
+                        const base64 = await extractFile(fileName);
+                        if (base64) {
+                            item.content = base64;
+                            validStickers.push(item);
+                        } else {
+                            console.warn(`⚠️ Sticker file not found in ZIP: ${fileName}`);
+                        }
+                    }
+                }
+                // Actualizar la lista solo con los que se encontraron
+                data.top_stickers = validStickers;
+                
+                // Si no quedó ninguno, eliminar la categoría para que no salga la slide
+                if (data.top_stickers.length === 0) {
+                    delete data.top_stickers;
+                }
+            }
+
+            // 2. Top Sticker Senders
+            if (data.top_sticker_senders) {
+                const validSenders = [];
+                for (const item of data.top_sticker_senders) {
+                    // item.sticker tiene el nombre del archivo temporalmente
+                    const fileName = item.sticker;
+                    if (fileName && fileName !== 'unknown') {
+                        const base64 = await extractFile(fileName);
+                        if (base64) {
+                            item.sticker = base64;
+                            validSenders.push(item);
+                        } else {
+                            console.warn(`⚠️ Sticker file not found in ZIP: ${fileName}`);
+                        }
+                    }
+                }
+                // Actualizar la lista solo con los que se encontraron
+                data.top_sticker_senders = validSenders;
+
+                // Si no quedó ninguno, eliminar la categoría para que no salga la slide
+                if (data.top_sticker_senders.length === 0) {
+                    delete data.top_sticker_senders;
+                }
+            }
+            console.log("📦 Sticker extraction complete");
+        }
         
         console.log('\n✅ ANÁLISIS COMPLETADO');
         console.log(`   Año: ${data.year}`);
         console.log(`   Grupo: ${data.group_name}`);
-        console.log(`   Mensajes: ${data.totals.messages}`);
+        if (data.totals) {
+            console.log(`   Mensajes: ${data.totals.messages}`);
+        }
         console.log("✅ Chat parsed successfully:", data);
 
         showNamesEditor(data);
@@ -74,13 +144,13 @@ function showNamesEditor(data: any) {
     const card = document.querySelector(".upload-card");
     if (!card) return;
 
-    // We want to edit: Group Name and Top Senders
-    const senders = data.top_senders;
+    // Editamos el array de participants directamente
+    const participants = data.participants;
 
-    let sendersHtml = senders.map((s: any, i: number) => `
+    let participantsHtml = participants.map((name: string, i: number) => `
         <div class="name-input-group">
-            <label>Sender #${i + 1} (${s.messages} msgs)</label>
-            <input type="text" class="sender-name-input" data-index="${i}" value="${s.name}">
+            <label>Participante #${i + 1}</label>
+            <input type="text" class="participant-name-input" data-index="${i}" value="${name}">
         </div>
     `).join('');
 
@@ -95,11 +165,11 @@ function showNamesEditor(data: any) {
                     <input type="text" id="group-name-input" value="${data.group_name}">
                 </div>
                 <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.1); margin: 8px 0;">
-                ${sendersHtml}
+                ${participantsHtml}
             </div>
 
             <div class="editor-footer">
-                <button id="generate-btn" class="btn-primary">Generar mi Wrapped</button>
+                <button id="generate-btn" class="btn-primary">Ver mi Wrapped</button>
             </div>
         </div>
     `;
@@ -109,19 +179,10 @@ function showNamesEditor(data: any) {
         const groupInput = document.getElementById("group-name-input") as HTMLInputElement;
         data.group_name = groupInput.value;
 
-        const senderInputs = document.querySelectorAll(".sender-name-input") as NodeListOf<HTMLInputElement>;
-        senderInputs.forEach(input => {
+        const participantInputs = document.querySelectorAll(".participant-name-input") as NodeListOf<HTMLInputElement>;
+        participantInputs.forEach(input => {
             const idx = parseInt(input.getAttribute("data-index") || "0");
-            const oldName = data.top_senders[idx].name;
-            const newName = input.value;
-
-            // Update in top_senders
-            data.top_senders[idx].name = newName;
-
-            // Also update in most_frequent_message if it's the same person
-            if (data.most_frequent_message.author === oldName) {
-                data.most_frequent_message.author = newName;
-            }
+            data.participants[idx] = input.value;
         });
 
         generateFinalWrapped(data);
@@ -131,36 +192,20 @@ function showNamesEditor(data: any) {
 function generateFinalWrapped(data: any) {
     setStatus("Generating your story...", "process");
 
+    // Guardar en sessionStorage
+    console.log('💾 Guardando wrapped data en sessionStorage...');
+    sessionStorage.setItem('wrappedData', JSON.stringify(data));
+    
+    // TODO: En el futuro, subir a API aquí
+    // await fetch('/api/wrapped', { method: 'POST', body: JSON.stringify(data) });
+
     // Slight delay for effect
     setTimeout(() => {
-        const hash = compressAndEncode(data);
-        const shareUrl = `${window.location.origin}/#${hash}`;
-
         setStatus("Wrapped Ready!", "success");
-        const card = document.querySelector(".upload-card");
-
-        if (card) {
-            card.innerHTML = `
-                <div style="text-align: center; padding: 20px;">
-                    <div style="width: 60px; height: 60px; background: #25D366; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px;">
-                        <svg width="32" height="32" fill="none" stroke="white" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
-                    </div>
-                    <h2 style="font-size: 24px; font-weight: 700; color: #fff; margin-bottom: 8px;">¡Análisis Completo!</h2>
-                    <p style="color: #8696a0; margin-bottom: 32px; font-weight: 300;">Tu historia de 2025 está lista.</p>
-                    <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 32px;">
-                        <a href="/#${hash}" class="btn-primary" style="display: block; background: #25D366; color: #0b141a; font-weight: 700; padding: 16px; border-radius: 16px; text-decoration: none; font-size: 16px;">
-                            Ver Mi Wrapped
-                        </a>
-                    </div>
-                    <div style="background: rgba(255,255,255,0.05); padding: 16px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.1);">
-                        <p style="font-size: 11px; text-transform: uppercase; color: #8696a0; letter-spacing: 1px; margin-bottom: 8px; text-align: left;">Link para compartir</p>
-                        <div style="display: flex; align-items: center; gap: 12px;">
-                            <input type="text" id="share-link-input" value="${shareUrl}" readonly style="flex: 1; background: transparent; border: none; color: #fff; font-family: monospace; font-size: 13px; outline: none;">
-                            <button id="copy-btn" style="background: rgba(37, 211, 102, 0.1); border: none; color: #25D366; padding: 6px 12px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 12px;">COPIAR</button>
-                        </div>
-                    </div>
-                </div>`;
-        }
+        console.log('✅ Redirigiendo a visualización...');
+        
+        // Redirigir a index.html
+        window.location.href = '/index.html';
     }, 800);
 }
 

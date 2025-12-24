@@ -12,70 +12,47 @@ import type { ParsedChatResult } from './messageParser';
  */
 
 /**
- * Extrae la lista de todos los participantes del grupo
- * a partir de autores de mensajes y system messages
+ * Limpia un nombre: trim y remueve puntos finales
  */
-function extractParticipants(result: ParsedChatResult): string[] {
+function cleanName(name: string): string {
+    return name.trim().replace(/\.+$/, '');
+}
+
+/**
+ * Extrae la lista de participantes que aparecen en las estadísticas calculadas
+ * y construye un mapa nombre -> índice
+ */
+function buildParticipantsMap(result: ParsedChatResult): { participants: string[], nameToIndex: Map<string, number> } {
     const participantsSet = new Set<string>();
     
-    // 1. Autores de mensajes normales
+    // Extraer nombres de mensajes (autores que enviaron mensajes)
     result.messages.forEach(msg => {
         if (msg.author) {
-            participantsSet.add(msg.author);
+            participantsSet.add(cleanName(msg.author));
         }
     });
     
-    // 2. Autores de media
+    // Extraer nombres de media (autores que enviaron media)
     result.media.forEach(msg => {
         if (msg.author) {
-            participantsSet.add(msg.author);
+            participantsSet.add(cleanName(msg.author));
         }
     });
     
-    // 3. Extraer nombres de system messages
+    // Extraer nombres de system messages (para polls)
     result.system.forEach(msg => {
-        // user_added: "Añadiste a X", "Se añadió a X, Y, Z", "Diego Salas añadió a Tomás"
-        if (msg.type === 'user_added') {
-            // Patrones: "Añadiste a X", "Se añadió a X, Y y Z", "A añadió a B"
-            const match = msg.content.match(/(?:Añadiste a|Se añadió a|añadió a|You added|were added|added)\s+(.+)/i);
-            if (match) {
-                // Separar por comas y "y"/"and"
-                const names = match[1]
-                    .split(/,|\sy\s|\sand\s/i)
-                    .map(n => n.trim())
-                    .filter(n => n && n !== 'you');
-                names.forEach(name => participantsSet.add(name));
-            }
-            // También intentar extraer el que añadió: "Diego Salas añadió a..."
-            const adderMatch = msg.content.match(/^‎?(.+?)\s+(añadió|added)/i);
-            if (adderMatch && adderMatch[1]) {
-                participantsSet.add(adderMatch[1].trim());
-            }
-        }
-        
-        // user_removed: "Eliminaste a X", "A removed B"
-        if (msg.type === 'user_removed') {
-            const match = msg.content.match(/(?:Eliminaste a|eliminó a|You removed|removed)\s+(.+)/i);
-            if (match) {
-                participantsSet.add(match[1].trim().replace(/\.$/, ''));
-            }
-            // Extraer el que eliminó
-            const removerMatch = msg.content.match(/^‎?(.+?)\s+(eliminó|removed)/i);
-            if (removerMatch && removerMatch[1]) {
-                participantsSet.add(removerMatch[1].trim());
-            }
-        }
-        
-        // user_left: "Cata salió del grupo", "X left"
-        if (msg.type === 'user_left') {
-            const match = msg.content.match(/^‎?(.+?)\s+(salió del grupo|left)/i);
-            if (match && match[1]) {
-                participantsSet.add(match[1].trim());
-            }
+        if (msg.author) {
+            participantsSet.add(cleanName(msg.author));
         }
     });
     
-    return Array.from(participantsSet).sort();
+    const participants = Array.from(participantsSet).sort();
+    const nameToIndex = new Map<string, number>();
+    participants.forEach((name, index) => {
+        nameToIndex.set(name, index);
+    });
+    
+    return { participants, nameToIndex };
 }
 
 /**
@@ -114,14 +91,16 @@ function getTopSenders(result: ParsedChatResult) {
     // Contar todos los mensajes (incluyendo eliminados)
     result.messages.forEach(m => {
         if (m.author) {
-            senderCounts.set(m.author, (senderCounts.get(m.author) || 0) + 1);
+            const name = cleanName(m.author);
+            senderCounts.set(name, (senderCounts.get(name) || 0) + 1);
         }
     });
     
     // Contar media
     result.media.forEach(m => {
         if (m.author) {
-            senderCounts.set(m.author, (senderCounts.get(m.author) || 0) + 1);
+            const name = cleanName(m.author);
+            senderCounts.set(name, (senderCounts.get(name) || 0) + 1);
         }
     });
     
@@ -141,7 +120,8 @@ function getTopDeleters(result: ParsedChatResult) {
     
     result.messages.forEach(m => {
         if (m.author && m.deleted) {
-            deleterCounts.set(m.author, (deleterCounts.get(m.author) || 0) + 1);
+            const name = cleanName(m.author);
+            deleterCounts.set(name, (deleterCounts.get(name) || 0) + 1);
         }
     });
     
@@ -165,7 +145,8 @@ function getTopEditors(result: ParsedChatResult) {
     
     result.messages.forEach(m => {
         if (m.author && m.edited) {
-            editorCounts.set(m.author, (editorCounts.get(m.author) || 0) + 1);
+            const name = cleanName(m.author);
+            editorCounts.set(name, (editorCounts.get(name) || 0) + 1);
         }
     });
     
@@ -190,11 +171,12 @@ function getMostFrequentMessage(result: ParsedChatResult) {
     result.messages.forEach(m => {
         if (m.author && !m.deleted && m.content.trim().length > 0) {
             const key = m.content.trim().toLowerCase();
+            const author = cleanName(m.author);
             const existing = messageCounts.get(key);
             if (existing) {
                 existing.count++;
             } else {
-                messageCounts.set(key, { author: m.author, count: 1 });
+                messageCounts.set(key, { author, count: 1 });
             }
         }
     });
@@ -423,7 +405,7 @@ function getLongestActivityStreak(result: ParsedChatResult) {
  * Obtiene los 5 stickers más enviados
  * Los stickers tienen contenido específico o fileName que podemos usar para agrupar
  */
-function getTopStickers(result: ParsedChatResult) {
+function getTopStickers(result: ParsedChatResult, attachmentsMap?: Map<string, string>) {
     const stickers = result.media.filter(m => m.type === 'sticker');
     
     if (stickers.length === 0) return undefined;
@@ -439,7 +421,11 @@ function getTopStickers(result: ParsedChatResult) {
     });
     
     const sorted = Array.from(stickerCounts.entries())
-        .map(([content, count]) => ({ content, count }))
+        .map(([fileName, count]) => {
+            // Try to get base64 content from map, otherwise keep fileName to extract later
+            const content = attachmentsMap?.get(fileName) || fileName;
+            return { content, count };
+        })
         .sort((a, b) => b.count - a.count)
         .slice(0, 5);
     
@@ -449,7 +435,7 @@ function getTopStickers(result: ParsedChatResult) {
 /**
  * Obtiene el top 3 de combinaciones (autor, sticker) más enviadas
  */
-function getTopStickerSenders(result: ParsedChatResult) {
+function getTopStickerSenders(result: ParsedChatResult, attachmentsMap?: Map<string, string>) {
     const stickers = result.media.filter(m => m.type === 'sticker' && m.author);
     
     if (stickers.length === 0) return undefined;
@@ -460,13 +446,14 @@ function getTopStickerSenders(result: ParsedChatResult) {
     stickers.forEach(sticker => {
         if (sticker.author) {
             const stickerName = sticker.fileName || 'unknown';
-            const key = `${sticker.author}|${stickerName}`;
+            const name = cleanName(sticker.author);
+            const key = `${name}|${stickerName}`;
             
             if (combinationCounts.has(key)) {
                 combinationCounts.get(key)!.count++;
             } else {
                 combinationCounts.set(key, {
-                    name: sticker.author,
+                    name,
                     sticker: stickerName,
                     count: 1
                 });
@@ -475,6 +462,11 @@ function getTopStickerSenders(result: ParsedChatResult) {
     });
     
     const sorted = Array.from(combinationCounts.values())
+        .map(item => {
+            // Try to get base64 content from map, otherwise keep fileName to extract later
+            const content = attachmentsMap?.get(item.sticker) || item.sticker;
+            return { ...item, sticker: content };
+        })
         .sort((a, b) => b.count - a.count)
         .slice(0, 3);
     
@@ -493,7 +485,8 @@ function getMostStickerSender(result: ParsedChatResult) {
     
     stickers.forEach(sticker => {
         if (sticker.author) {
-            senderCounts.set(sticker.author, (senderCounts.get(sticker.author) || 0) + 1);
+            const name = cleanName(sticker.author);
+            senderCounts.set(name, (senderCounts.get(name) || 0) + 1);
         }
     });
     
@@ -517,7 +510,8 @@ function getMostAudioSender(result: ParsedChatResult) {
     
     audios.forEach(audio => {
         if (audio.author) {
-            senderCounts.set(audio.author, (senderCounts.get(audio.author) || 0) + 1);
+            const name = cleanName(audio.author);
+            senderCounts.set(name, (senderCounts.get(name) || 0) + 1);
         }
     });
     
@@ -541,7 +535,8 @@ function getMostLocationSender(result: ParsedChatResult) {
     
     locations.forEach(location => {
         if (location.author) {
-            senderCounts.set(location.author, (senderCounts.get(location.author) || 0) + 1);
+            const name = cleanName(location.author);
+            senderCounts.set(name, (senderCounts.get(name) || 0) + 1);
         }
     });
     
@@ -565,7 +560,8 @@ function getMostPollStarter(result: ParsedChatResult) {
     
     polls.forEach(poll => {
         if (poll.author) {
-            senderCounts.set(poll.author, (senderCounts.get(poll.author) || 0) + 1);
+            const name = cleanName(poll.author);
+            senderCounts.set(name, (senderCounts.get(name) || 0) + 1);
         }
     });
     
@@ -589,7 +585,8 @@ function getMostImageSender(result: ParsedChatResult) {
     
     images.forEach(image => {
         if (image.author) {
-            senderCounts.set(image.author, (senderCounts.get(image.author) || 0) + 1);
+            const name = cleanName(image.author);
+            senderCounts.set(name, (senderCounts.get(name) || 0) + 1);
         }
     });
     
@@ -613,7 +610,8 @@ function getMostVideoSender(result: ParsedChatResult) {
     
     videos.forEach(video => {
         if (video.author) {
-            senderCounts.set(video.author, (senderCounts.get(video.author) || 0) + 1);
+            const name = cleanName(video.author);
+            senderCounts.set(name, (senderCounts.get(name) || 0) + 1);
         }
     });
     
@@ -637,7 +635,8 @@ function getMostDocumentSender(result: ParsedChatResult) {
     
     documents.forEach(doc => {
         if (doc.author) {
-            senderCounts.set(doc.author, (senderCounts.get(doc.author) || 0) + 1);
+            const name = cleanName(doc.author);
+            senderCounts.set(name, (senderCounts.get(name) || 0) + 1);
         }
     });
     
@@ -652,15 +651,9 @@ function getMostDocumentSender(result: ParsedChatResult) {
 // TODO: Implementar el cálculo de estadísticas
 // Este archivo contendrá toda la lógica de agregación de datos que actualmente está en chatParser.ts
 
-export function calculateStats(result: ParsedChatResult, groupName: string): WrappedData {
-    // PASO 1: Extraer lista de participantes
-    const participants = extractParticipants(result);
-    
-    // Crear mapa de nombre -> índice
-    const nameToIndex = new Map<string, number>();
-    participants.forEach((name, index) => {
-        nameToIndex.set(name, index);
-    });
+export function calculateStats(result: ParsedChatResult, groupName: string, attachmentsMap?: Map<string, string>): WrappedData {
+    // PASO 1: Construir array de participantes y mapa nombre -> índice
+    const { participants, nameToIndex } = buildParticipantsMap(result);
     
     console.log('\n========================================');
     console.log('👥 PARTICIPANTES DEL GRUPO:');
@@ -733,10 +726,10 @@ export function calculateStats(result: ParsedChatResult, groupName: string): Wra
     const activityStreak = getLongestActivityStreak(result);
     if (activityStreak) stats.longest_activity_streak = activityStreak;
     
-    const topStickers = getTopStickers(result);
+    const topStickers = getTopStickers(result, attachmentsMap);
     if (topStickers) stats.top_stickers = topStickers;
     
-    const topStickerSenders = getTopStickerSenders(result);
+    const topStickerSenders = getTopStickerSenders(result, attachmentsMap);
     if (topStickerSenders) {
         stats.top_sticker_senders = topStickerSenders.map(s => ({
             nameIndex: nameToIndex.get(s.name)!,

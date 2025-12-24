@@ -14,7 +14,33 @@ import { PeakDaySlide } from './slides/PeakDaySlide';
 import { SilenceStreakSlide } from './slides/SilenceStreakSlide';
 import { ActivityStreakSlide } from './slides/ActivityStreakSlide';
 import { OutroSlide } from './slides/OutroSlide';
+import { GenericWinnerSlide } from './slides/GenericWinnerSlide';
+import { GenericRankingSlide } from './slides/GenericRankingSlide';
+import { TopStickersSlide } from './slides/TopStickersSlide';
+import { StickerPeopleSlide } from './slides/StickerPeopleSlide';
+import { NewPeopleSlide } from './slides/NewPeopleSlide';
 import type { WrappedData } from './data';
+
+// Intentar cargar datos de sessionStorage (desde upload)
+let loadedData: WrappedData | null = null;
+const storedData = sessionStorage.getItem('wrappedData');
+if (storedData) {
+    try {
+        loadedData = JSON.parse(storedData);
+        console.log('✅ Wrapped data cargado desde sessionStorage:', loadedData);
+    } catch (e) {
+        console.error('❌ Error parseando wrapped data:', e);
+    }
+}
+
+// TODO: En el futuro, si no hay datos en sessionStorage, pedirlos a la API
+// if (!loadedData) {
+//     const response = await fetch('/api/wrapped/latest');
+//     loadedData = await response.json();
+// }
+
+// Usar datos cargados o datos dummy
+const dataToUse = loadedData || wrappedData;
 
 // initialize
 if (!document.querySelector('#app')) throw new Error("App container not found");
@@ -36,8 +62,8 @@ if (hash) {
 // 2. If no hash, check for Dev Mode or Redirect
 if (!data) {
   if (import.meta.env.DEV) {
-    console.warn("⚠️ No Hash found. Using Dummy Data (Dev Mode)");
-    data = wrappedData;
+    console.warn("⚠️ No Hash found. Using Data from sessionStorage or Dummy Data (Dev Mode)");
+    data = dataToUse;
   } else {
     // Production: Redirect to Upload
     console.log("🔄 No data found. Redirecting to upload...");
@@ -48,21 +74,101 @@ if (!data) {
 if (data) {
   const story = new StoryController('app');
 
+  // Always show intro and totals
   story.addSlide(new IntroSlide(data));
-  story.addSlide(new TotalsSlide(data));
+  if (data.totals) {
+    story.addSlide(new TotalsSlide(data));
+  }
 
-  // New Bubble Ranking Sequence
-  story.addSlide(new RankingBubblesSlide(data, false)); // Ranks 2-5
-  story.addSlide(new SuspenseSlide("Pero alguien habló más que todos..."));
-  story.addSlide(new RankingBubblesSlide(data, true));  // All + Winner reveal
+  // Conditional: New People
+  if (data.new_people && data.new_people.length > 0) {
+    story.addSlide(new NewPeopleSlide(data));
+  }
 
-  story.addSlide(new MostFrequentMessageSlide(data));
-  story.addSlide(new TopWordsSlide(data));
-  story.addSlide(new EmojiSlide(data));
-  story.addSlide(new MonthlyChartSlide(data));
-  story.addSlide(new PeakDaySlide(data));
-  story.addSlide(new SilenceStreakSlide(data));
-  story.addSlide(new ActivityStreakSlide(data));
+  // Conditional: Top senders bubble ranking sequence
+  if (data.top_senders && data.top_senders.length > 0) {
+    story.addSlide(new RankingBubblesSlide(data, false)); // Ranks 2-5
+    story.addSlide(new SuspenseSlide("Pero alguien habló más que todos..."));
+    story.addSlide(new RankingBubblesSlide(data, true));  // All + Winner reveal
+  }
+
+  // Conditional: Most frequent message
+  if (data.most_frequent_message && data.most_frequent_message.length > 0) {
+    story.addSlide(new MostFrequentMessageSlide(data));
+  }
+
+  // Conditional: Top words
+  if (data.top_words && data.top_words.length > 0) {
+    story.addSlide(new TopWordsSlide(data));
+  }
+
+  // Conditional: Top emojis
+  if (data.top_emojis && data.top_emojis.length > 0) {
+    story.addSlide(new EmojiSlide(data));
+  }
+
+  // Conditional: Top Stickers
+  if (data.top_stickers && data.top_stickers.length > 0) {
+    story.addSlide(new TopStickersSlide(data));
+  }
+
+  // Conditional: Sticker People
+  if (data.top_sticker_senders && data.top_sticker_senders.length > 0) {
+    story.addSlide(new StickerPeopleSlide(data));
+  }
+
+  // Conditional: Media Winners
+  if (data.most_image_sender) {
+    story.addSlide(new GenericWinnerSlide(data, 'most_image_sender', 'images', 'El Paparazzi del Grupo 📸', '📸', 'fotos'));
+  }
+  if (data.most_video_sender) {
+    story.addSlide(new GenericWinnerSlide(data, 'most_video_sender', 'videos', 'El Director de Cine 🎬', '🎬', 'videos'));
+  }
+  if (data.most_audio_sender) {
+    story.addSlide(new GenericWinnerSlide(data, 'most_audio_sender', 'audios', 'El Podcaster 🎙️', '🎙️', 'audios'));
+  }
+  if (data.most_document_sender) {
+    story.addSlide(new GenericWinnerSlide(data, 'most_document_sender', 'documents', 'La Oficina Andante 📁', '📁', 'archivos'));
+  }
+  if (data.most_location_sender) {
+    story.addSlide(new GenericWinnerSlide(data, 'most_location_sender', 'locations', 'El Guía Turístico 📍', '📍', 'ubicaciones'));
+  }
+  if (data.most_poll_starter) {
+    story.addSlide(new GenericWinnerSlide(data, 'most_poll_starter', 'polls', 'El Democrático 📊', '📊', 'encuestas'));
+  }
+  if (data.most_sticker_sender) {
+    story.addSlide(new GenericWinnerSlide(data, 'most_sticker_sender', 'stickers', 'El Dealer de Stickers 👾', '👾', 'stickers'));
+  }
+
+  // Conditional: Rankings (Deleters, Editors)
+  if (data.top_deleters && data.top_deleters.length > 0) {
+    story.addSlide(new GenericRankingSlide(data, 'top_deleters', 'deleted', 'Los Arrepentidos 🚫', 'mensajes borrados'));
+  }
+  if (data.top_editors && data.top_editors.length > 0) {
+    story.addSlide(new GenericRankingSlide(data, 'top_editors', 'edited', 'Los Indecisos ✏️', 'mensajes editados'));
+  }
+
+  // Conditional: Monthly chart
+  if (data.messages_per_month) {
+    story.addSlide(new MonthlyChartSlide(data));
+  }
+
+  // Conditional: Peak activity day
+  if (data.peak_activity_day) {
+    story.addSlide(new PeakDaySlide(data));
+  }
+
+  // Conditional: Silence streak
+  if (data.longest_silence_streak) {
+    story.addSlide(new SilenceStreakSlide(data));
+  }
+
+  // Conditional: Activity streak
+  if (data.longest_activity_streak) {
+    story.addSlide(new ActivityStreakSlide(data));
+  }
+
+  // Always show outro
   story.addSlide(new OutroSlide(data));
 
   story.start();

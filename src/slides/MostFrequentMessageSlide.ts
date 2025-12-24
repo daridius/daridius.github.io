@@ -11,7 +11,8 @@ export class MostFrequentMessageSlide extends Slide {
     }
 
     getTemplate(): string {
-        const msg = this.data.most_frequent_message;
+        const msg = this.data.most_frequent_message![0];
+        const author = this.data.participants[msg.authorIndex];
         return `
         <div class="content-wrapper most-frequent-msg-slide-content">
             <div class="intro">
@@ -21,7 +22,7 @@ export class MostFrequentMessageSlide extends Slide {
             <div class="message-container">
                 <div class="message-bubble">
                     <div class="msg-header">
-                        <span class="author">${msg.author}</span>
+                        <span class="author">${author}</span>
                     </div>
                     <div class="msg-content">
                         ${msg.content}
