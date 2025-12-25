@@ -42,7 +42,6 @@ export class TopStickersSlide extends Slide {
                     <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; filter: drop-shadow(0 10px 25px rgba(0,0,0,0.4)); transition: transform 0.3s ease;">
                         <img src="data:image/webp;base64,${item.content}" style="width: 100%; height: 100%; object-fit: contain;" />
                     </div>
-                    <div class="b-count" style="background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); color: #fff; margin-top: 10px; font-size: 1rem; padding: 4px 12px;">${item.count}</div>
                 </div>
             `;
         }).join('');

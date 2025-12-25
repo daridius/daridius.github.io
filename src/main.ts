@@ -18,6 +18,7 @@ import { GenericWinnerSlide } from './slides/GenericWinnerSlide';
 import { TopStickersSlide } from './slides/TopStickersSlide';
 import { StickerPeopleSlide } from './slides/StickerPeopleSlide';
 import { NewPeopleSlide } from './slides/NewPeopleSlide';
+import { AwardsIntroSlide } from './slides/AwardsIntroSlide';
 import type { WrappedData } from './data';
 
 // Intentar cargar datos de sessionStorage (desde upload)
@@ -116,6 +117,16 @@ if (data) {
     story.addSlide(new StickerPeopleSlide(data));
   }
 
+  // Awards Intro (only if there are any winners)
+  const hasAnyWinner = data.most_image_sender || data.most_video_sender || data.most_audio_sender || 
+                       data.most_document_sender || data.most_location_sender || data.most_poll_starter || 
+                       data.most_sticker_sender || (data.top_deleters && data.top_deleters.length > 0) || 
+                       (data.top_editors && data.top_editors.length > 0);
+  
+  if (hasAnyWinner) {
+    story.addSlide(new AwardsIntroSlide());
+  }
+
   // Conditional: Media Winners
   if (data.most_image_sender) {
     story.addSlide(new GenericWinnerSlide(data, 'most_image_sender', 'images', 'El Paparazzi', '📸', 'fotos'));
@@ -141,10 +152,10 @@ if (data) {
 
   // Conditional: Rankings (Deleters, Editors)
   if (data.top_deleters && data.top_deleters.length > 0) {
-    story.addSlide(new GenericWinnerSlide(data, 'top_deleters', 'deleted', 'El Arrepentido', '🗑️', 'borrados'));
+    story.addSlide(new GenericWinnerSlide(data, 'top_deleters', 'deleted', 'El Arrepentido', '🗑️', 'mensajes borrados'));
   }
   if (data.top_editors && data.top_editors.length > 0) {
-    story.addSlide(new GenericWinnerSlide(data, 'top_editors', 'edited', 'El Indeciso', '✏️', 'editados'));
+    story.addSlide(new GenericWinnerSlide(data, 'top_editors', 'edited', 'El Indeciso', '✏️', 'mensajes editados'));
   }
 
   // Conditional: Monthly chart

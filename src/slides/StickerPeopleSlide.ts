@@ -44,7 +44,7 @@ export class StickerPeopleSlide extends Slide {
                     </div>
 
                     <div class="p-sticker" style="position: relative; transition: transform 0.3s ease; filter: drop-shadow(0 15px 30px rgba(0,0,0,0.5)) ${glow};">
-                        <img src="data:image/webp;base64,${item.sticker}" style="width: 140px; height: 140px; object-fit: contain;" />
+                        <img src="data:image/webp;base64,${item.sticker}" style="width: 100px; height: 100px; object-fit: contain;" />
                     </div>
 
                     <div class="p-count" style="margin-top: 15px; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); padding: 6px 16px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.15); box-shadow: 0 4px 10px rgba(0,0,0,0.3);">
@@ -86,25 +86,25 @@ export class StickerPeopleSlide extends Slide {
                     scale: (i) => targetScales[i], 
                     duration: 1, 
                     stagger: 0.2, 
-                    ease: "elastic.out(1, 0.6)",
-                    onComplete: () => {
-                        items.forEach((el, idx) => {
-                            // Floating animation
-                            // Use a separate tween to ensure smooth transition from the entrance
-                            gsap.to(el, {
-                                y: -12, // Move up slightly
-                                duration: 2 + idx * 0.5,
-                                repeat: -1,
-                                yoyo: true,
-                                ease: "sine.inOut",
-                                delay: 0.1 + idx * 0.2, // Small buffer to let entrance settle
-                                overwrite: "auto"
-                            });
-                        });
-                    }
+                    ease: "elastic.out(1, 0.6)"
                 }, 
                 "-=0.4"
             );
+
+            // Add floating animation separately, starting from y: 0
+            items.forEach((el, idx) => {
+                gsap.fromTo(el, 
+                    { y: 0 },
+                    {
+                        y: -12,
+                        duration: 2 + idx * 0.5,
+                        repeat: -1,
+                        yoyo: true,
+                        ease: "sine.inOut",
+                        delay: 1.2 + idx * 0.2
+                    }
+                );
+            });
         }
         this.timeline = tl;
     }

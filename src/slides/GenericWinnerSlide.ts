@@ -33,6 +33,12 @@ export class GenericWinnerSlide extends Slide {
         const name = this.data.participants[winnerData.nameIndex];
         const count = winnerData[this.countKey];
 
+        // Adjust chip size for long text
+        const isLongText = this.unit.length > 10;
+        const chipPadding = isLongText ? '6px 18px' : '8px 24px';
+        const chipFontSize = isLongText ? '0.9rem' : '1rem';
+        const countFontSize = isLongText ? '1.4rem' : '1.6rem';
+
         // Confetti Fountain (Bottom)
         const confettiCount = 150;
         const confettiHtml = Array.from({ length: confettiCount }).map(() => {
@@ -64,9 +70,9 @@ export class GenericWinnerSlide extends Slide {
 
                 <div class="winner-name" style="font-size: 2.2rem; font-weight: 900; color: #fff; text-align: center; margin-bottom: 15px; line-height: 1.1; text-shadow: 0 2px 10px rgba(0,0,0,0.5);">${name}</div>
                 
-                <div class="winner-stat" style="background: linear-gradient(90deg, var(--whatsapp-green), #128C7E); padding: 8px 24px; border-radius: 50px; box-shadow: 0 5px 15px rgba(37, 211, 102, 0.3);">
-                    <span style="font-size: 1.6rem; font-weight: 800; color: #fff;">${count}</span> 
-                    <span style="font-size: 1rem; opacity: 0.9; color: #fff; font-weight: 600; text-transform: uppercase; margin-left: 5px;">${this.unit}</span>
+                <div class="winner-stat" style="background: linear-gradient(90deg, var(--whatsapp-green), #128C7E); padding: ${chipPadding}; border-radius: 50px; box-shadow: 0 5px 15px rgba(37, 211, 102, 0.3); display: inline-flex; align-items: center; gap: 10px;">
+                    <span style="font-size: ${countFontSize}; font-weight: 800; color: #fff; flex-shrink: 0;">${count}</span> 
+                    <span style="font-size: ${chipFontSize}; opacity: 0.9; color: #fff; font-weight: 600; text-transform: uppercase; white-space: nowrap;">${this.unit}</span>
                 </div>
             </div>
         </div>
