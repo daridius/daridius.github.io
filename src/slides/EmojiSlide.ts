@@ -11,7 +11,9 @@ export class EmojiSlide extends Slide {
     }
 
     getTemplate(): string {
-        const topEmojis = this.data.top_emojis.slice(0, 5);
+        const topEmojis = this.data.top_emojis?.slice(0, 5) || [];
+        if (topEmojis.length === 0) return '';
+
         const maxCount = topEmojis[0]?.count || 1;
 
         // Spread positions to create an organic cloud

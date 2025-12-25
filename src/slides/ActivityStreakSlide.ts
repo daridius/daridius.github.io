@@ -18,21 +18,24 @@ export class ActivityStreakSlide extends Slide {
     }
 
     getTemplate(): string {
+        const streak = this.data.longest_activity_streak;
+        if (!streak) return '';
+
         return `
         <div class="content-wrapper activity-streak-slide-content">
             <div class="content">
                 <h2 class="sub-title">Desde el</h2>
                 <div class="dates">
-                     <span class="highlight">${fmt(this.data.longest_activity_streak.from)}</span>
+                     <span class="highlight">${fmt(streak.from)}</span>
                     al
-                    <span class="highlight">${fmt(this.data.longest_activity_streak.to)}</span>
+                    <span class="highlight">${fmt(streak.to)}</span>
                 </div>
 
                 <h1 class="main-msg">¡No pararon de hablar!</h1>
 
                 <div class="streak-badge">
                     <span class="fire">🔥</span>
-                    <span><span>${this.data.longest_activity_streak.days}</span> días seguidos</span>
+                    <span><span>${streak.days}</span> días seguidos</span>
                 </div>
             </div>
         </div>

@@ -15,7 +15,6 @@ import { SilenceStreakSlide } from './slides/SilenceStreakSlide';
 import { ActivityStreakSlide } from './slides/ActivityStreakSlide';
 import { OutroSlide } from './slides/OutroSlide';
 import { GenericWinnerSlide } from './slides/GenericWinnerSlide';
-import { GenericRankingSlide } from './slides/GenericRankingSlide';
 import { TopStickersSlide } from './slides/TopStickersSlide';
 import { StickerPeopleSlide } from './slides/StickerPeopleSlide';
 import { NewPeopleSlide } from './slides/NewPeopleSlide';
@@ -119,33 +118,33 @@ if (data) {
 
   // Conditional: Media Winners
   if (data.most_image_sender) {
-    story.addSlide(new GenericWinnerSlide(data, 'most_image_sender', 'images', 'El Paparazzi del Grupo 📸', '📸', 'fotos'));
+    story.addSlide(new GenericWinnerSlide(data, 'most_image_sender', 'images', 'El Paparazzi del Grupo', '📸', 'fotos'));
   }
   if (data.most_video_sender) {
-    story.addSlide(new GenericWinnerSlide(data, 'most_video_sender', 'videos', 'El Director de Cine 🎬', '🎬', 'videos'));
+    story.addSlide(new GenericWinnerSlide(data, 'most_video_sender', 'videos', 'El Director de Cine', '🎬', 'videos'));
   }
   if (data.most_audio_sender) {
-    story.addSlide(new GenericWinnerSlide(data, 'most_audio_sender', 'audios', 'El Podcaster 🎙️', '🎙️', 'audios'));
+    story.addSlide(new GenericWinnerSlide(data, 'most_audio_sender', 'audios', 'El Podcaster', '🎙️', 'audios'));
   }
   if (data.most_document_sender) {
-    story.addSlide(new GenericWinnerSlide(data, 'most_document_sender', 'documents', 'La Oficina Andante 📁', '📁', 'archivos'));
+    story.addSlide(new GenericWinnerSlide(data, 'most_document_sender', 'documents', 'La Oficina Andante', '📁', 'archivos'));
   }
   if (data.most_location_sender) {
-    story.addSlide(new GenericWinnerSlide(data, 'most_location_sender', 'locations', 'El Guía Turístico 📍', '📍', 'ubicaciones'));
+    story.addSlide(new GenericWinnerSlide(data, 'most_location_sender', 'locations', 'El Guía Turístico', '📍', 'ubicaciones'));
   }
   if (data.most_poll_starter) {
-    story.addSlide(new GenericWinnerSlide(data, 'most_poll_starter', 'polls', 'El Democrático 📊', '📊', 'encuestas'));
+    story.addSlide(new GenericWinnerSlide(data, 'most_poll_starter', 'polls', 'El Democrático', '📊', 'encuestas'));
   }
   if (data.most_sticker_sender) {
-    story.addSlide(new GenericWinnerSlide(data, 'most_sticker_sender', 'stickers', 'El Dealer de Stickers 👾', '👾', 'stickers'));
+    story.addSlide(new GenericWinnerSlide(data, 'most_sticker_sender', 'stickers', 'El Dealer de Stickers', '👾', 'stickers'));
   }
 
   // Conditional: Rankings (Deleters, Editors)
   if (data.top_deleters && data.top_deleters.length > 0) {
-    story.addSlide(new GenericRankingSlide(data, 'top_deleters', 'deleted', 'Los Arrepentidos 🚫', 'mensajes borrados'));
+    story.addSlide(new GenericWinnerSlide(data, 'top_deleters', 'deleted', 'El Arrepentido', '🗑️', 'mensajes borrados'));
   }
   if (data.top_editors && data.top_editors.length > 0) {
-    story.addSlide(new GenericRankingSlide(data, 'top_editors', 'edited', 'Los Indecisos ✏️', 'mensajes editados'));
+    story.addSlide(new GenericWinnerSlide(data, 'top_editors', 'edited', 'El Indeciso', '✏️', 'mensajes editados'));
   }
 
   // Conditional: Monthly chart

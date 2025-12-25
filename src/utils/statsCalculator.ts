@@ -60,19 +60,19 @@ function buildParticipantsMap(result: ParsedChatResult): { participants: string[
  * Los mensajes eliminados y media cuentan como mensajes sin palabras
  */
 function getTotals(result: ParsedChatResult) {
-    // Contar todos los mensajes (incluyendo eliminados)
-    const totalMessages = result.messages.length + result.media.length;
+    // Contar todos los mensajes (incluyendo eliminados y media)
+    // Los eliminados están en system con type='deleted'
+    const deletedCount = result.system.filter(s => s.type === 'deleted').length;
+    const totalMessages = result.messages.length + result.media.length + deletedCount;
     
     if (totalMessages === 0) return undefined;
     
-    // Solo contar palabras y caracteres de mensajes NO eliminados
-    const validMessages = result.messages.filter(m => !m.deleted);
-    
-    const words = validMessages.reduce((sum, m) => {
+    // Solo contar palabras y caracteres de mensajes normales (result.messages ya son solo normales)
+    const words = result.messages.reduce((sum, m) => {
         return sum + m.content.split(/\s+/).filter(w => w.length > 0).length;
     }, 0);
     
-    const characters = validMessages.reduce((sum, m) => sum + m.content.length, 0);
+    const characters = result.messages.reduce((sum, m) => sum + m.content.length, 0);
     
     return {
         messages: totalMessages,
@@ -118,9 +118,10 @@ function getTopSenders(result: ParsedChatResult) {
 function getTopDeleters(result: ParsedChatResult) {
     const deleterCounts = new Map<string, number>();
     
-    result.messages.forEach(m => {
-        if (m.author && m.deleted) {
-            const name = cleanName(m.author);
+    // Iterar sobre system messages buscando type='deleted'
+    result.system.forEach(s => {
+        if (s.author && s.type === 'deleted') {
+            const name = cleanName(s.author);
             deleterCounts.set(name, (deleterCounts.get(name) || 0) + 1);
         }
     });
@@ -129,8 +130,9 @@ function getTopDeleters(result: ParsedChatResult) {
     
     const topDeleters = Array.from(deleterCounts.entries())
         .map(([name, deleted]) => ({ name, deleted }))
+        .filter(item => item.deleted > 3) // Minimum threshold > 3
         .sort((a, b) => b.deleted - a.deleted)
-        .slice(0, 3);
+        .slice(0, 1); // Only top 1
     
     if (topDeleters.length === 0) return undefined;
     
@@ -154,8 +156,9 @@ function getTopEditors(result: ParsedChatResult) {
     
     const topEditors = Array.from(editorCounts.entries())
         .map(([name, edited]) => ({ name, edited }))
+        .filter(item => item.edited > 3) // Minimum threshold > 3
         .sort((a, b) => b.edited - a.edited)
-        .slice(0, 3);
+        .slice(0, 1); // Only top 1
     
     if (topEditors.length === 0) return undefined;
     
@@ -169,7 +172,7 @@ function getMostFrequentMessage(result: ParsedChatResult) {
     const messageCounts = new Map<string, { author: string; count: number }>();
     
     result.messages.forEach(m => {
-        if (m.author && !m.deleted && m.content.trim().length > 0) {
+        if (m.author && m.content.trim().length > 0) {
             const key = m.content.trim().toLowerCase();
             const author = cleanName(m.author);
             const existing = messageCounts.get(key);
@@ -226,7 +229,7 @@ function getTopWords(result: ParsedChatResult) {
     ]);
     
     result.messages.forEach(m => {
-        if (!m.deleted && m.content) {
+        if (m.content) {
             const words = m.content.toLowerCase().split(/\s+/);
             words.forEach(word => {
                 const clean = word.replace(/[^a-záéíóúñü]/gi, '');
@@ -253,7 +256,7 @@ function getTopEmojis(result: ParsedChatResult) {
     const emojiRegex = /[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu;
     
     result.messages.forEach(m => {
-        if (!m.deleted && m.content) {
+        if (m.content) {
             const emojis = m.content.match(emojiRegex);
             if (emojis) {
                 emojis.forEach(emoji => {
@@ -278,10 +281,8 @@ function getMessagesPerMonth(result: ParsedChatResult) {
     const monthCounts: Record<number, number> = {};
     
     result.messages.forEach(m => {
-        if (!m.deleted) {
-            const month = m.date.getMonth() + 1; // 1-12
-            monthCounts[month] = (monthCounts[month] || 0) + 1;
-        }
+        const month = m.date.getMonth() + 1; // 1-12
+        monthCounts[month] = (monthCounts[month] || 0) + 1;
     });
     
     if (Object.keys(monthCounts).length === 0) return undefined;
@@ -296,10 +297,8 @@ function getPeakActivityDay(result: ParsedChatResult) {
     const dayCounts = new Map<string, number>();
     
     result.messages.forEach(m => {
-        if (!m.deleted) {
-            const dateStr = m.date.toISOString().split('T')[0]; // YYYY-MM-DD
-            dayCounts.set(dateStr, (dayCounts.get(dateStr) || 0) + 1);
-        }
+        const dateStr = m.date.toISOString().split('T')[0]; // YYYY-MM-DD
+        dayCounts.set(dateStr, (dayCounts.get(dateStr) || 0) + 1);
     });
     
     if (dayCounts.size === 0) return undefined;
@@ -319,9 +318,9 @@ function getPeakActivityDay(result: ParsedChatResult) {
  * Incluye mensajes de texto y media
  */
 function getLongestSilenceStreak(result: ParsedChatResult) {
-    // Combinar mensajes de texto (no eliminados) y media
+    // Combinar mensajes de texto y media
     const allActivity = [
-        ...result.messages.filter(m => !m.deleted).map(m => m.date),
+        ...result.messages.map(m => m.date),
         ...result.media.map(m => m.date)
     ].sort((a, b) => a.getTime() - b.getTime());
     
@@ -354,9 +353,9 @@ function getLongestSilenceStreak(result: ParsedChatResult) {
  * Incluye mensajes de texto y media
  */
 function getLongestActivityStreak(result: ParsedChatResult) {
-    // Combinar mensajes de texto (no eliminados) y media
+    // Combinar mensajes de texto y media
     const allActivity = [
-        ...result.messages.filter(m => !m.deleted).map(m => m.date),
+        ...result.messages.map(m => m.date),
         ...result.media.map(m => m.date)
     ];
     

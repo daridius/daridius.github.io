@@ -11,7 +11,9 @@ export class TopWordsSlide extends Slide {
     }
 
     getTemplate(): string {
-        const topWords = this.data.top_words.slice(0, 5);
+        const topWords = this.data.top_words?.slice(0, 5) || [];
+        if (topWords.length === 0) return '';
+
         const maxCount = topWords[0]?.count || 1;
 
         // Spread positions to create an organic cloud

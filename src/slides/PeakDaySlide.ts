@@ -11,7 +11,10 @@ export class PeakDaySlide extends Slide {
     }
 
     getTemplate(): string {
-        const dateObj = new Date(this.data.peak_activity_day.date);
+        const peakDay = this.data.peak_activity_day;
+        if (!peakDay) return '';
+
+        const dateObj = new Date(peakDay.date);
         const day = dateObj.getUTCDate();
         const month = monthNames[dateObj.getUTCMonth()];
 
@@ -25,7 +28,7 @@ export class PeakDaySlide extends Slide {
                     <div class="cal-day">${day}</div>
                 </div>
                 <div class="msg-count">
-                    <span>${this.data.peak_activity_day.messages}</span> mensajes
+                    <span>${peakDay.messages}</span> mensajes
                 </div>
             </div>
         </div>

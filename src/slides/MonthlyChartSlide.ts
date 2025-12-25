@@ -11,10 +11,13 @@ export class MonthlyChartSlide extends Slide {
     }
 
     getTemplate(): string {
-        const entries = Object.entries(this.data.messages_per_month).map(([k, v]) => [
+        const messagesPerMonth = this.data.messages_per_month || {};
+        const entries = Object.entries(messagesPerMonth).map(([k, v]) => [
             Number(k),
             v,
         ]) as [number, number][];
+
+        if (entries.length === 0) return '';
 
         entries.sort((a, b) => a[0] - b[0]);
 

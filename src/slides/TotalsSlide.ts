@@ -11,22 +11,25 @@ export class TotalsSlide extends Slide {
     }
 
     getTemplate(): string {
+        const totals = this.data.totals;
+        if (!totals) return '';
+
         return `
         <div class="content-wrapper totals-slide-content">
             <div class="stat-container">
                 <div class="stat-item s1">
                     <h2 class="label">Mensajes</h2>
-                    <div id="stat-messages" class="value big">${this.data.totals.messages.toLocaleString()}</div>
+                    <div id="stat-messages" class="value big">${totals.messages.toLocaleString()}</div>
                 </div>
 
                 <div class="stat-item s2">
                     <h2 class="label">Palabras</h2>
-                    <div id="stat-words" class="value medium">${this.data.totals.words.toLocaleString()}</div>
+                    <div id="stat-words" class="value medium">${totals.words.toLocaleString()}</div>
                 </div>
 
                 <div class="stat-item s3">
                     <h2 class="label">Caracteres</h2>
-                    <div id="stat-chars" class="value small">${this.data.totals.characters.toLocaleString()}</div>
+                    <div id="stat-chars" class="value small">${totals.characters.toLocaleString()}</div>
                 </div>
             </div>
         </div>
@@ -34,15 +37,18 @@ export class TotalsSlide extends Slide {
     }
 
     onEnter(): void {
+        const totals = this.data.totals;
+        if (!totals) return;
+
         this.timeline = gsap.timeline();
         const items = this.element?.querySelectorAll(".stat-item");
 
         if (!items) return;
 
         const targetValues = [
-            this.data.totals.messages,
-            this.data.totals.words,
-            this.data.totals.characters
+            totals.messages,
+            totals.words,
+            totals.characters
         ];
 
         items.forEach((item, i) => {

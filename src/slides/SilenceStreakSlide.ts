@@ -18,20 +18,23 @@ export class SilenceStreakSlide extends Slide {
     }
 
     getTemplate(): string {
+        const streak = this.data.longest_silence_streak;
+        if (!streak) return '';
+
         return `
         <div class="content-wrapper silence-slide-content">
              <div class="content">
                 <h2>Y aunque desde el</h2>
                 <div class="dates">
-                    <span class="highlight">${fmt(this.data.longest_silence_streak.from)}</span>
+                    <span class="highlight">${fmt(streak.from)}</span>
                     al
-                    <span class="highlight">${fmt(this.data.longest_silence_streak.to)}</span>
+                    <span class="highlight">${fmt(streak.to)}</span>
                 </div>
                 <h2>no hubo señales de vida...</h2>
 
                 <div class="emoji-reaction">🦗</div>
                 <div class="days-count">
-                    <span>${this.data.longest_silence_streak.days}</span> días de silencio
+                    <span>${streak.days}</span> días de silencio
                 </div>
             </div>
         </div>
