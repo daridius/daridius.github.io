@@ -70,7 +70,6 @@ export interface ParsedMessage {
         fileName: string;
     };
     edited?: boolean; // true si el mensaje fue editado
-    deleted?: boolean; // true si el mensaje fue eliminado
 }
 
 /**
@@ -110,6 +109,7 @@ export interface MediaMessage {
 
 export type SystemType = 
     | 'encryption'
+    | 'deleted'
     | 'group_created'
     | 'group_renamed'
     | 'user_added'
@@ -411,6 +411,9 @@ function detectSystemMessage(
     if (detectEncryption(content)) {
         return { date, author, type: 'encryption', content };
     }
+    if (detectDeleted(content)) {
+        return { date, author, type: 'deleted', content };
+    }
     if (detectGroupCreated(content)) {
         return { date, author, type: 'group_created', content };
     }
@@ -524,16 +527,7 @@ export function parseWhatsAppChat(chatContent: string): ParsedChatResult {
         
         // Detectar mensajes editados y limpiar el contenido
         const isEdited = detectEdited(content);
-        const isDeleted = detectDeleted(content);
-        
-        // Si está editado, limpiar el texto de edición
-        // Si está eliminado, dejar contenido vacío
-        let cleanContent = content;
-        if (isDeleted) {
-            cleanContent = '';
-        } else if (isEdited) {
-            cleanContent = cleanEditedMessage(content);
-        }
+        const cleanContent = isEdited ? cleanEditedMessage(content) : content;
         
         // Si no es media ni system, es mensaje normal
         messages.push({
@@ -541,8 +535,7 @@ export function parseWhatsAppChat(chatContent: string): ParsedChatResult {
             author,
             content: cleanContent,
             attachment: msg.attachment,
-            edited: isEdited || undefined,
-            deleted: isDeleted || undefined
+            edited: isEdited
         });
     });
     

@@ -118,33 +118,33 @@ if (data) {
 
   // Conditional: Media Winners
   if (data.most_image_sender) {
-    story.addSlide(new GenericWinnerSlide(data, 'most_image_sender', 'images', 'El Paparazzi del Grupo', '📸', 'fotos'));
+    story.addSlide(new GenericWinnerSlide(data, 'most_image_sender', 'images', 'El Paparazzi', '📸', 'fotos'));
   }
   if (data.most_video_sender) {
-    story.addSlide(new GenericWinnerSlide(data, 'most_video_sender', 'videos', 'El Director de Cine', '🎬', 'videos'));
+    story.addSlide(new GenericWinnerSlide(data, 'most_video_sender', 'videos', 'El Director', '🎬', 'videos'));
   }
   if (data.most_audio_sender) {
     story.addSlide(new GenericWinnerSlide(data, 'most_audio_sender', 'audios', 'El Podcaster', '🎙️', 'audios'));
   }
   if (data.most_document_sender) {
-    story.addSlide(new GenericWinnerSlide(data, 'most_document_sender', 'documents', 'La Oficina Andante', '📁', 'archivos'));
+    story.addSlide(new GenericWinnerSlide(data, 'most_document_sender', 'documents', 'EL Bibliotecario', '📁', 'archivos'));
   }
   if (data.most_location_sender) {
-    story.addSlide(new GenericWinnerSlide(data, 'most_location_sender', 'locations', 'El Guía Turístico', '📍', 'ubicaciones'));
+    story.addSlide(new GenericWinnerSlide(data, 'most_location_sender', 'locations', 'El Aventurero', '🗺️', 'ubicaciones'));
   }
   if (data.most_poll_starter) {
     story.addSlide(new GenericWinnerSlide(data, 'most_poll_starter', 'polls', 'El Democrático', '📊', 'encuestas'));
   }
   if (data.most_sticker_sender) {
-    story.addSlide(new GenericWinnerSlide(data, 'most_sticker_sender', 'stickers', 'El Dealer de Stickers', '👾', 'stickers'));
+    story.addSlide(new GenericWinnerSlide(data, 'most_sticker_sender', 'stickers', 'Stickerman', '👾', 'stickers'));
   }
 
   // Conditional: Rankings (Deleters, Editors)
   if (data.top_deleters && data.top_deleters.length > 0) {
-    story.addSlide(new GenericWinnerSlide(data, 'top_deleters', 'deleted', 'El Arrepentido', '🗑️', 'mensajes borrados'));
+    story.addSlide(new GenericWinnerSlide(data, 'top_deleters', 'deleted', 'El Arrepentido', '🗑️', 'borrados'));
   }
   if (data.top_editors && data.top_editors.length > 0) {
-    story.addSlide(new GenericWinnerSlide(data, 'top_editors', 'edited', 'El Indeciso', '✏️', 'mensajes editados'));
+    story.addSlide(new GenericWinnerSlide(data, 'top_editors', 'edited', 'El Indeciso', '✏️', 'editados'));
   }
 
   // Conditional: Monthly chart
