@@ -1179,7 +1179,8 @@ body.upload-page {
 
 /* Sticker People Slide */
 .sticker-people-slide .intro h2,
-.sticker-people-slide .sticker-user-item {
+.sticker-people-slide .sticker-user-item,
+.sticker-people-slide .sticker-person-item {
     opacity: 0;
     visibility: hidden;
 }
