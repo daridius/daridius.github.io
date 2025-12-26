@@ -711,9 +711,11 @@ body.upload-page {
       #0b141a 60%);
   font-family: "Outfit", sans-serif;
   min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  padding: 40px 0;
+  /* Override fixed positioning and hidden overflow from base body styles */
+  position: static;
+  overflow-y: auto;
+  height: auto;
 }
 
 /* Decorative Background Elements */
@@ -761,6 +763,7 @@ body.upload-page {
   padding: 24px;
   text-align: center;
   z-index: 10;
+  margin: 0 auto;
 }
 
 /* Header */
@@ -887,13 +890,23 @@ body.upload-page {
 /* Footer */
 .footer {
   margin-top: 48px;
-  font-size: 12px;
-  color: rgba(255, 255, 255, 0.3);
+  text-align: center;
 }
 
-.footer strong {
-  color: rgba(255, 255, 255, 0.5);
-  font-weight: 500;
+.privacy-badge {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--whatsapp-green);
+  margin-bottom: 12px;
+  letter-spacing: 0.5px;
+}
+
+.privacy-details {
+  font-size: 11px;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.4);
+  max-width: 400px;
+  margin: 0 auto;
 }
 
 /* Responsive adjustments for very small screens */
@@ -1082,7 +1095,7 @@ body.upload-page {
   display: flex;
   flex-direction: column;
   gap: 16px;
-  max-height: 300px;
+  max-height: 400px;
   overflow-y: auto;
   margin-bottom: 24px;
   padding-right: 8px;

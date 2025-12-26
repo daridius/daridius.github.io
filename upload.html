@@ -1,10 +1,10 @@
 <!doctype html>
-<html lang="en">
+<html lang="es">
 
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>WhatsApp Wrapped 2025 - Upload</title>
+    <title>WhatsApp Wrapped 2025 - Subir Chat</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="/src/style.css" />
 </head>
@@ -19,7 +19,7 @@
 
     <div class="container">
         <h1>WhatsApp Wrapped</h1>
-        <p class="subtitle">Discover the story behind your chats.</p>
+        <p class="subtitle">Descubre la historia detrás de tus chats.</p>
 
         <div class="upload-card">
             <label class="drop-zone" id="drop-zone">
@@ -28,17 +28,18 @@
                         d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33 3 3 0 013.758 3.848A3.752 3.752 0 0118 19.5H6.75z">
                     </path>
                 </svg>
-                <div class="btn-text">Drop your chat file</div>
-                <div class="sub-text">Supports .txt or .zip export</div>
+                <div class="btn-text">Arrastra tu archivo de chat</div>
+                <div class="sub-text">Soporta exportaciones .txt o .zip</div>
                 <input type="file" id="file-upload" accept=".txt,.zip"
                     style="position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); border: 0;" />
             </label>
         </div>
 
-        <div id="status" class="status">Ready to analyze</div>
+        <div id="status" class="status">Listo para analizar</div>
 
         <div class="footer">
-            <strong>100% Private.</strong> Processing happens on your device.
+            <div class="privacy-badge">🔒 100% PRIVADO</div>
+            <p class="privacy-details">El análisis ocurre en tu dispositivo. Solo el resumen se encripta y guarda. Ni el creador puede acceder sin tu link. Los mensajes del chat nunca se almacenan. Open-source.</p>
         </div>
     </div>
 

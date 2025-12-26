@@ -19,7 +19,7 @@ function setStatus(msg: string, type: "visible" | "success" | "error" | "process
 
 async function processFile(file: File) {
     console.log("⚙️ Starting processing for:", file.name);
-    setStatus("Unpacking your story...", "process");
+    setStatus("Desempacando tu historia...", "process");
 
     try {
         let text = "";
@@ -44,7 +44,7 @@ async function processFile(file: File) {
         }
 
         console.log("📝 Text recovered, length:", text.length);
-        setStatus("Analyzing messages...", "process");
+        setStatus("Analizando mensajes...", "process");
         await new Promise((r) => setTimeout(r, 400));
 
         // Fase 1: Parsear mensajes con whatsapp-chat-parser
@@ -146,7 +146,7 @@ async function processFile(file: File) {
 }
 
 function showNamesEditor(data: any) {
-    setStatus("Customize names", "visible");
+    setStatus("Personaliza nombres", "visible");
     const card = document.querySelector(".upload-card");
     if (!card) return;
 
@@ -196,7 +196,7 @@ function showNamesEditor(data: any) {
 }
 
 function generateFinalWrapped(data: any) {
-    setStatus("Generating your story...", "process");
+    setStatus("Generando tu historia...", "process");
 
     // Guardar en sessionStorage
     console.log('💾 Guardando wrapped data en sessionStorage...');
@@ -207,7 +207,7 @@ function generateFinalWrapped(data: any) {
 
     // Slight delay for effect
     setTimeout(() => {
-        setStatus("Wrapped Ready!", "success");
+        setStatus("¡Wrapped listo!", "success");
         console.log('✅ Redirigiendo a visualización...');
         
         // Redirigir a index.html
