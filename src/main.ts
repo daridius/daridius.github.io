@@ -1,7 +1,8 @@
 import './style.css'
 import { StoryController } from './core/StoryController';
-import { wrappedData } from './data';
 import { decodeAndDecompress } from './utils/compression';
+import { importKey, decryptData } from './utils/encryption';
+import { getFromKV } from './services/kvService';
 import { IntroSlide } from './slides/IntroSlide';
 import { TotalsSlide } from './slides/TotalsSlide';
 import { RankingBubblesSlide } from './slides/RankingBubblesSlide';
@@ -26,12 +27,12 @@ import type { WrappedData } from './data';
 let loadedData: WrappedData | null = null;
 const storedData = sessionStorage.getItem('wrappedData');
 if (storedData) {
-    try {
-        loadedData = JSON.parse(storedData);
-        console.log('✅ Wrapped data cargado desde sessionStorage:', loadedData);
-    } catch (e) {
-        console.error('❌ Error parseando wrapped data:', e);
-    }
+  try {
+    loadedData = JSON.parse(storedData);
+    console.log('✅ Wrapped data cargado desde sessionStorage:', loadedData);
+  } catch (e) {
+    console.error('❌ Error parseando wrapped data:', e);
+  }
 }
 
 // TODO: En el futuro, si no hay datos en sessionStorage, pedirlos a la API
@@ -40,33 +41,59 @@ if (storedData) {
 //     loadedData = await response.json();
 // }
 
-// Usar datos cargados o datos dummy
-const dataToUse = loadedData || wrappedData;
-
 // initialize
 if (!document.querySelector('#app')) throw new Error("App container not found");
 
 
 let data: WrappedData | null = null;
 
-// 1. Try to get data from Hash
-const hash = window.location.hash.substring(1);
-if (hash) {
+// 1. Try to get data from URL Params (Cloudflare KV)
+const urlParams = new URLSearchParams(window.location.search);
+const kvKey = urlParams.get('kv');
+const encKeyB64 = urlParams.get('enc');
+
+if (kvKey && encKeyB64) {
   try {
-    data = decodeAndDecompress(hash);
-    console.log("✅ Data loaded from URL Hash", data);
+    console.log('📡 Carga desde link compartido detectada...');
+    const encrypted = await getFromKV(kvKey);
+    const cryptoKey = await importKey(encKeyB64);
+    const compressed = await decryptData(encrypted, cryptoKey);
+    data = decodeAndDecompress(compressed);
+
+    if (data) {
+      console.log("✅ Data loaded from KV", data);
+      // Guardar las llaves para que el botón de compartir sepa que ya existe el link
+      sessionStorage.setItem('shareKeys', JSON.stringify({ kv: kvKey, enc: encKeyB64 }));
+    } else {
+      throw new Error("No se pudo decompressar la data de KV");
+    }
   } catch (e) {
-    console.error("❌ Failed to decode hash", e);
+    console.error("❌ Failed to load from shared link", e);
+    window.location.href = '/error.html';
   }
 }
 
-// 2. If no hash, check for Dev Mode or Redirect
+// 2. Try to get data from Hash (Legacy/Direct)
 if (!data) {
-  if (import.meta.env.DEV) {
-    console.warn("⚠️ No Hash found. Using Data from sessionStorage or Dummy Data (Dev Mode)");
-    data = dataToUse;
+  const hash = window.location.hash.substring(1);
+  if (hash) {
+    try {
+      // Need to import decodeBase62 if used here
+      const { decodeBase62 } = await import('./utils/base62');
+      const uint8 = decodeBase62(hash);
+      data = decodeAndDecompress(uint8);
+      console.log("✅ Data loaded from URL Hash", data);
+    } catch (e) {
+      console.error("❌ Failed to decode hash", e);
+    }
+  }
+}
+
+// 3. Fallback to sessionStorage
+if (!data) {
+  if (loadedData) {
+    data = loadedData;
   } else {
-    // Production: Redirect to Upload
     console.log("🔄 No data found. Redirecting to upload...");
     window.location.href = '/upload.html';
   }
@@ -119,11 +146,11 @@ if (data) {
   }
 
   // Awards Intro (only if there are any winners)
-  const hasAnyWinner = data.most_image_sender || data.most_video_sender || data.most_audio_sender || 
-                       data.most_document_sender || data.most_location_sender || data.most_poll_starter || 
-                       data.most_sticker_sender || (data.top_deleters && data.top_deleters.length > 0) || 
-                       (data.top_editors && data.top_editors.length > 0);
-  
+  const hasAnyWinner = data.most_image_sender || data.most_video_sender || data.most_audio_sender ||
+    data.most_document_sender || data.most_location_sender || data.most_poll_starter ||
+    data.most_sticker_sender || (data.top_deleters && data.top_deleters.length > 0) ||
+    (data.top_editors && data.top_editors.length > 0);
+
   if (hasAnyWinner) {
     story.addSlide(new AwardsIntroSlide());
   }

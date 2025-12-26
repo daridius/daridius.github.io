@@ -128,10 +128,13 @@ body {
   overflow: hidden;
   padding: env(safe-area-inset-top) 1.5rem env(safe-area-inset-bottom);
   z-index: 0;
+  /* Permitir que los clicks pasen al overlay de navegación */
+  pointer-events: none;
 }
 
 .slide.active {
-  z-index: 10;
+  z-index: 150;
+  /* Por encima del overlay de navegación (z-100) */
 }
 
 .content-wrapper {
@@ -144,6 +147,8 @@ body {
   align-items: center;
   position: relative;
   margin: 0 auto;
+  /* Re-habilitar clicks para botones y contenido interactivo */
+  pointer-events: auto;
 }
 
 /* Navigation Overlay */
@@ -169,6 +174,93 @@ body {
   background: transparent;
   outline: none;
   -webkit-tap-highlight-color: transparent;
+}
+
+/* Navigation Hints - Bordered & Minimal */
+.nav-hints {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 200;
+  opacity: 0;
+  transition: opacity 1s ease;
+}
+
+.nav-hints.visible {
+  opacity: 1;
+}
+
+.hint-tap {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+  padding: 20px;
+  border-radius: 20px;
+  /* Very subtle backdrop to not obscure content */
+  background: radial-gradient(circle at center, rgba(0, 0, 0, 0.3) 0%, transparent 70%);
+}
+
+.hint-tap.left {
+  left: 10px;
+}
+
+.hint-tap.right {
+  right: 10px;
+}
+
+.tap-circle {
+  width: 60px;
+  height: 60px;
+  border: 1.5px solid rgba(255, 255, 255, 0.4);
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+.tap-circle::after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255, 255, 255, 0.4);
+  animation: tapPulse 2.5s infinite;
+}
+
+.hint-tap.right .tap-circle,
+.hint-tap.right .tap-circle::after {
+  border-color: var(--whatsapp-green);
+  opacity: 0.8;
+}
+
+.hint-tap span {
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--text-secondary);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+@keyframes tapPulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+
+  100% {
+    transform: scale(1.8);
+    opacity: 0;
+  }
 }
 
 
@@ -1072,6 +1164,7 @@ body.upload-page {
   opacity: 0;
   visibility: hidden;
 }
+
 /* --- Name Editor Styles --- */
 .names-editor {
   text-align: left;
@@ -1105,10 +1198,12 @@ body.upload-page {
 .names-list::-webkit-scrollbar {
   width: 6px;
 }
+
 .names-list::-webkit-scrollbar-track {
   background: rgba(255, 255, 255, 0.05);
   border-radius: 10px;
 }
+
 .names-list::-webkit-scrollbar-thumb {
   background: rgba(255, 255, 255, 0.2);
   border-radius: 10px;
@@ -1177,166 +1272,166 @@ body.upload-page {
 .generic-winner-slide .crowd-member,
 .generic-winner-slide .sunburst-bg,
 .generic-winner-slide .sparkle {
-    opacity: 0;
-    visibility: hidden;
+  opacity: 0;
+  visibility: hidden;
 }
 
 /* Generic Ranking Slide */
 .generic-ranking-slide .intro h2,
 .generic-ranking-slide .ranking-item {
-    opacity: 0;
-    visibility: hidden;
+  opacity: 0;
+  visibility: hidden;
 }
 
 /* Top Stickers Slide */
 .top-stickers-slide .intro h2,
 .top-stickers-slide .sticker-item {
-    opacity: 0;
-    visibility: hidden;
+  opacity: 0;
+  visibility: hidden;
 }
 
 /* Sticker People Slide */
 .sticker-people-slide .intro h2,
 .sticker-people-slide .sticker-user-item,
 .sticker-people-slide .sticker-person-item {
-    opacity: 0;
-    visibility: hidden;
+  opacity: 0;
+  visibility: hidden;
 }
 
 /* New People Slide */
 .new-people-slide .intro h2,
 .new-people-slide .people-list {
-    opacity: 0;
-    visibility: hidden;
+  opacity: 0;
+  visibility: hidden;
 }
 
 /* Podium Slide Styles */
 .podium-container {
-    display: flex;
-    align-items: flex-end;
-    justify-content: center;
-    gap: 1rem;
-    height: 50vh;
-    width: 100%;
-    margin-top: 4rem;
-    perspective: 1000px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 1rem;
+  height: 50vh;
+  width: 100%;
+  margin-top: 4rem;
+  perspective: 1000px;
 }
 
 .podium-place {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-end;
-    width: 28%;
-    max-width: 120px;
-    position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  width: 28%;
+  max-width: 120px;
+  position: relative;
 }
 
 .podium-bar {
-    width: 100%;
-    border-radius: 15px 15px 0 0;
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-bottom: none;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    align-items: center;
-    padding-bottom: 1rem;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-    transform-origin: bottom;
-    position: relative;
+  width: 100%;
+  border-radius: 15px 15px 0 0;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-bottom: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  padding-bottom: 1rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  transform-origin: bottom;
+  position: relative;
 }
 
 .podium-place.first .podium-bar {
-    height: 280px;
-    background: linear-gradient(to bottom, rgba(255, 215, 0, 0.4), rgba(255, 215, 0, 0.1));
-    border-color: rgba(255, 215, 0, 0.6);
-    box-shadow: 0 0 40px rgba(255, 215, 0, 0.3);
-    z-index: 10;
+  height: 280px;
+  background: linear-gradient(to bottom, rgba(255, 215, 0, 0.4), rgba(255, 215, 0, 0.1));
+  border-color: rgba(255, 215, 0, 0.6);
+  box-shadow: 0 0 40px rgba(255, 215, 0, 0.3);
+  z-index: 10;
 }
 
 .podium-place.second .podium-bar {
-    height: 180px;
-    background: linear-gradient(to bottom, rgba(192, 192, 192, 0.4), rgba(192, 192, 192, 0.1));
-    border-color: rgba(192, 192, 192, 0.6);
-    z-index: 5;
+  height: 180px;
+  background: linear-gradient(to bottom, rgba(192, 192, 192, 0.4), rgba(192, 192, 192, 0.1));
+  border-color: rgba(192, 192, 192, 0.6);
+  z-index: 5;
 }
 
 .podium-place.third .podium-bar {
-    height: 120px;
-    background: linear-gradient(to bottom, rgba(205, 127, 50, 0.4), rgba(205, 127, 50, 0.1));
-    border-color: rgba(205, 127, 50, 0.6);
-    z-index: 5;
+  height: 120px;
+  background: linear-gradient(to bottom, rgba(205, 127, 50, 0.4), rgba(205, 127, 50, 0.1));
+  border-color: rgba(205, 127, 50, 0.6);
+  z-index: 5;
 }
 
 .podium-info {
-    position: absolute;
-    bottom: 100%;
-    width: 150%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-bottom: 15px;
-    text-align: center;
+  position: absolute;
+  bottom: 100%;
+  width: 150%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 15px;
+  text-align: center;
 }
 
 .podium-avatar {
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    background: #fff;
-    color: #333;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 900;
-    font-size: 1.8rem;
-    margin-bottom: 0.5rem;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-    border: 3px solid #fff;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: #fff;
+  color: #333;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  font-size: 1.8rem;
+  margin-bottom: 0.5rem;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  border: 3px solid #fff;
 }
 
 .podium-place.first .podium-avatar {
-    width: 80px;
-    height: 80px;
-    font-size: 2.5rem;
-    border-color: #FFD700;
-    box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+  width: 80px;
+  height: 80px;
+  font-size: 2.5rem;
+  border-color: #FFD700;
+  box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
 }
 
 .podium-name {
-    font-size: 1rem;
-    font-weight: 700;
-    color: #fff;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.8);
-    line-height: 1.2;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #fff;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+  line-height: 1.2;
 }
 
 .podium-place.first .podium-name {
-    font-size: 1.3rem;
+  font-size: 1.3rem;
 }
 
 .podium-count {
-    font-size: 1.5rem;
-    font-weight: 800;
-    color: #fff;
-    margin-bottom: 5px;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #fff;
+  margin-bottom: 5px;
 }
 
 .podium-rank {
-    font-size: 4rem;
-    font-weight: 900;
-    opacity: 0.2;
-    position: absolute;
-    bottom: 10px;
-    color: #fff;
+  font-size: 4rem;
+  font-weight: 900;
+  opacity: 0.2;
+  position: absolute;
+  bottom: 10px;
+  color: #fff;
 }
 
 /* FOUC Prevention */
 .generic-ranking-slide .podium-place,
 .generic-ranking-slide .intro h2 {
-    opacity: 0;
-    visibility: hidden;
+  opacity: 0;
+  visibility: hidden;
 }

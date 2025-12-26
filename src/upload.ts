@@ -24,7 +24,7 @@ async function processFile(file: File) {
     try {
         let text = "";
         let loadedZip: JSZip | null = null;
-        
+
         await new Promise((r) => setTimeout(r, 600));
 
         if (file.name.endsWith(".zip")) {
@@ -51,7 +51,7 @@ async function processFile(file: File) {
         console.log('\n🚀 COMENZANDO ANÁLISIS DEL CHAT...');
         const result = parseWhatsAppChat(text);
         const groupName = extractGroupName(text);
-        
+
         // Fase 2: Calcular estadísticas (sin imágenes aún)
         console.log('\n📊 CALCULANDO ESTADÍSTICAS...');
         const data = calculateStats(result, groupName);
@@ -83,13 +83,13 @@ async function processFile(file: File) {
                             item.content = base64;
                             validStickers.push(item);
                         } else {
-                            console.warn(`⚠️ Sticker file not found in ZIP: ${fileName}`);
+                            console.warn(`⚠️ Sticker file not found in ZIP: ${fileName} `);
                         }
                     }
                 }
                 // Actualizar la lista solo con los que se encontraron
                 data.top_stickers = validStickers;
-                
+
                 // Si no quedó ninguno, eliminar la categoría para que no salga la slide
                 if (data.top_stickers.length === 0) {
                     delete data.top_stickers;
@@ -108,7 +108,7 @@ async function processFile(file: File) {
                             item.sticker = base64;
                             validSenders.push(item);
                         } else {
-                            console.warn(`⚠️ Sticker file not found in ZIP: ${fileName}`);
+                            console.warn(`⚠️ Sticker file not found in ZIP: ${fileName} `);
                         }
                     }
                 }
@@ -128,12 +128,12 @@ async function processFile(file: File) {
             delete data.top_stickers;
             delete data.top_sticker_senders;
         }
-        
+
         console.log('\n✅ ANÁLISIS COMPLETADO');
-        console.log(`   Año: ${data.year}`);
-        console.log(`   Grupo: ${data.group_name}`);
+        console.log(`   Año: ${data.year} `);
+        console.log(`   Grupo: ${data.group_name} `);
         if (data.totals) {
-            console.log(`   Mensajes: ${data.totals.messages}`);
+            console.log(`   Mensajes: ${data.totals.messages} `);
         }
         console.log("✅ Chat parsed successfully:", data);
 
@@ -195,24 +195,26 @@ function showNamesEditor(data: any) {
     });
 }
 
-function generateFinalWrapped(data: any) {
+async function generateFinalWrapped(data: any) {
     setStatus("Generando tu historia...", "process");
 
-    // Guardar en sessionStorage
+    // Guardar en sessionStorage para visualización inmediata
     console.log('💾 Guardando wrapped data en sessionStorage...');
     sessionStorage.setItem('wrappedData', JSON.stringify(data));
-    
-    // TODO: En el futuro, subir a API aquí
-    // await fetch('/api/wrapped', { method: 'POST', body: JSON.stringify(data) });
 
-    // Slight delay for effect
+    // Proceso de subida a KV
+    const { uploadWrappedData } = await import('./services/shareService');
+    uploadWrappedData(data).catch(err => {
+        console.warn('⚠️ No se pudo habilitar el compartir (vía KV):', err);
+        sessionStorage.setItem('shareError', 'true');
+    });
+
+    // Delay normal (1s)
     setTimeout(() => {
         setStatus("¡Wrapped listo!", "success");
         console.log('✅ Redirigiendo a visualización...');
-        
-        // Redirigir a index.html
         window.location.href = '/index.html';
-    }, 800);
+    }, 1000);
 }
 
 // Global Event Delegation
