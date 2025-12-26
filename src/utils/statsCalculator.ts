@@ -18,34 +18,7 @@ function cleanName(name: string): string {
     return name.trim().replace(/\.+$/, '');
 }
 
-/**
- * Extrae la lista de participantes que efectivamente APARECEN en las estadísticas.
- * Esto evita mostrar nombres irrelevantes en el editor de nombres.
- */
-function buildParticipantsList(result: ParsedChatResult): string[] {
-    const relevantNames = new Set<string>();
-
-    // Función helper para limpiar y añadir
-    const add = (name?: string | null) => {
-        if (name) relevantNames.add(cleanName(name));
-    };
-
-    // 1. Top Senders (Mensajes totales y media)
-    result.messages.forEach(m => add(m.author));
-    result.media.forEach(m => add(m.author));
-
-    // 2. Revisar quiénes terminaron en las categorías ganadoras (borrados, editados, polls)
-    result.system.forEach(s => {
-        if (s.type === 'deleted' || s.type === 'poll') {
-            add(s.author);
-        }
-    });
-
-    // Los editados ya están cubiertos por result.messages arriba
-
-    // Retornamos solo los que realmente hicieron algo en el chat
-    return Array.from(relevantNames).sort();
-}
+/** @file statsCalculator.ts */
 
 /**
  * Calcula totales: mensajes, palabras y caracteres

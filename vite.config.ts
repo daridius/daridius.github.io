@@ -1,12 +1,12 @@
 import { defineConfig } from 'vite';
-import { resolve } from 'path';
 
 export default defineConfig({
+    base: './', // Crucial para que las rutas sean relativas y funcionen en GitHub Pages
     build: {
         rollupOptions: {
             input: {
-                main: resolve(__dirname, 'index.html'),
-                upload: resolve(__dirname, 'upload.html'),
+                main: 'index.html',
+                upload: 'upload.html',
             },
         },
     },

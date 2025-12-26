@@ -1,3 +1,4 @@
+import './style.css';
 import JSZip from "jszip";
 import { parseWhatsAppChat, extractGroupName } from "./utils/messageParser";
 import { calculateStats } from "./utils/statsCalculator";
@@ -198,23 +199,30 @@ function showNamesEditor(data: any) {
 async function generateFinalWrapped(data: any) {
     setStatus("Generando tu historia...", "process");
 
+    // Limpiar errores previos de esta sesión
+    sessionStorage.removeItem('shareError');
+    sessionStorage.removeItem('shareKeys');
+
     // Guardar en sessionStorage para visualización inmediata
     console.log('💾 Guardando wrapped data en sessionStorage...');
     sessionStorage.setItem('wrappedData', JSON.stringify(data));
 
-    // Proceso de subida a KV
-    const { uploadWrappedData } = await import('./services/shareService');
-    uploadWrappedData(data).catch(err => {
+    // Proceso de subida a KV - Ahora esperamos a que termine
+    try {
+        const { uploadWrappedData } = await import('./services/shareService');
+        await uploadWrappedData(data);
+        console.log('✅ Subida a KV completada con éxito.');
+    } catch (err) {
         console.warn('⚠️ No se pudo habilitar el compartir (vía KV):', err);
         sessionStorage.setItem('shareError', 'true');
-    });
+    }
 
-    // Delay normal (1s)
-    setTimeout(() => {
-        setStatus("¡Wrapped listo!", "success");
-        console.log('✅ Redirigiendo a visualización...');
-        window.location.href = '/index.html';
-    }, 1000);
+    // Un pequeño delay para que el usuario vea el mensaje de éxito si fue muy rápido
+    setStatus("¡Wrapped listo!", "success");
+    await new Promise(r => setTimeout(r, 800));
+
+    console.log('✅ Redirigiendo a visualización...');
+    window.location.href = '/index.html';
 }
 
 // Global Event Delegation
