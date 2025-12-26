@@ -8,6 +8,7 @@ export default defineConfig({
                 main: 'index.html',
                 upload: 'upload.html',
                 wrapped: 'wrapped/index.html',
+                error: 'error.html',
             },
         },
     },
