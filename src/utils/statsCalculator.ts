@@ -729,12 +729,13 @@ export function calculateStats(result: ParsedChatResult, groupName: string, atta
     if (topStickers) stats.top_stickers = topStickers;
     
     const topStickerSenders = getTopStickerSenders(result, attachmentsMap);
-    if (topStickerSenders) {
-        stats.top_sticker_senders = topStickerSenders.map(s => ({
-            nameIndex: nameToIndex.get(s.name)!,
-            sticker: s.sticker,
-            count: s.count
-        }));
+    if (topStickerSenders && topStickerSenders.length > 0) {
+        // Solo obtener el top 1
+        stats.top_sticker_senders = [{
+            nameIndex: nameToIndex.get(topStickerSenders[0].name)!,
+            sticker: topStickerSenders[0].sticker,
+            count: topStickerSenders[0].count
+        }];
     }
     
     const mostStickerSender = getMostStickerSender(result);

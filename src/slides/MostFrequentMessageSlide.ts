@@ -29,7 +29,7 @@ export class MostFrequentMessageSlide extends Slide {
                         <span class="checks">✓✓</span>
                     </div>
                 </div>
-                <div class="badge">SPAM DEL AÑO 🏆</div>
+                <div class="badge">SPAM</div>
             </div>
         `;
 
@@ -63,7 +63,7 @@ export class MostFrequentMessageSlide extends Slide {
         return `
         <div class="content-wrapper most-frequent-msg-slide-content">
             <div class="intro">
-                <h2>Mensajes que se repitieron hasta el cansancio...</h2>
+                <h2>Otros no pararon de mandar el mismo mensaje...</h2>
             </div>
 
             <div class="messages-list" style="display: flex; flex-direction: column; align-items: center; width: 100%;">

@@ -1047,7 +1047,10 @@ body.upload-page {
 }
 
 .top-words-slide-content .title,
-.emoji-slide-content .title {
+.emoji-slide-content .title,
+.top-stickers-slide .title,
+.sticker-people-slide .title,
+.sticker-people-slide-content .title {
   text-align: center;
   margin-bottom: 2rem;
   font-size: clamp(1.2rem, 5vw, 1.8rem);

@@ -18,16 +18,16 @@ export class TopStickersSlide extends Slide {
 
         // Organic Cloud Layout (Rank 1 in center)
         const positions = [
-            { top: '45%', left: '50%' }, // Rank 1 (Center)
-            { top: '22%', left: '30%' }, // Rank 2
-            { top: '72%', left: '28%' }, // Rank 3
-            { top: '28%', left: '72%' }, // Rank 4
-            { top: '75%', left: '75%' }  // Rank 5
+            { top: '50%', left: '50%' }, // Rank 1 (Center)
+            { top: '28%', left: '30%' }, // Rank 2
+            { top: '75%', left: '28%' }, // Rank 3
+            { top: '32%', left: '72%' }, // Rank 4
+            { top: '78%', left: '75%' }  // Rank 5
         ];
 
         const bubblesHtml = stickers.map((item, i) => {
-            const baseSize = 180;
-            const minSize = 120;
+            const baseSize = 140;
+            const minSize = 90;
             const relativeScale = Math.sqrt(item.count / maxCount);
             const size = Math.max(minSize, baseSize * relativeScale);
             const pos = positions[i];
@@ -64,10 +64,8 @@ export class TopStickersSlide extends Slide {
                     box-shadow: none !important;
                 }
             </style>
-            <div class="intro">
-                <h2>Tus Stickers Favoritos</h2>
-            </div>
-            <div class="bubble-ranking-container" style="height: 100%; width: 100%;">
+            <h2 class="title">Y stickers que nos sacaron más de alguna risa...</h2>
+            <div class="bubble-ranking-container">
                 ${bubblesHtml}
             </div>
         </div>
@@ -75,7 +73,7 @@ export class TopStickersSlide extends Slide {
     }
 
     onEnter(): void {
-        const title = this.element?.querySelector(".intro h2");
+        const title = this.element?.querySelector(".title");
         const bubbles = this.element?.querySelectorAll(".member-bubble");
 
         const tl = gsap.timeline();

@@ -43,7 +43,7 @@ export class TopWordsSlide extends Slide {
 
         return `
         <div class="content-wrapper top-words-slide-content">
-            <h2 class="title">Palabras que no pararon de usar...</h2>
+            <h2 class="title">Con palabras que no dejaron de usar...</h2>
             <div class="bubble-ranking-container">
                 ${bubblesHtml}
             </div>

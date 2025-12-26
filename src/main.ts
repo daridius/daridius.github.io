@@ -19,6 +19,7 @@ import { TopStickersSlide } from './slides/TopStickersSlide';
 import { StickerPeopleSlide } from './slides/StickerPeopleSlide';
 import { NewPeopleSlide } from './slides/NewPeopleSlide';
 import { AwardsIntroSlide } from './slides/AwardsIntroSlide';
+import { AwardsOutroSlide } from './slides/AwardsOutroSlide';
 import type { WrappedData } from './data';
 
 // Intentar cargar datos de sessionStorage (desde upload)
@@ -88,7 +89,7 @@ if (data) {
   // Conditional: Top senders bubble ranking sequence
   if (data.top_senders && data.top_senders.length > 0) {
     story.addSlide(new RankingBubblesSlide(data, false)); // Ranks 2-5
-    story.addSlide(new SuspenseSlide("Pero alguien habló más que todos..."));
+    story.addSlide(new SuspenseSlide("Pero alguien escribió más que todos los demás..."));
     story.addSlide(new RankingBubblesSlide(data, true));  // All + Winner reveal
   }
 
@@ -156,6 +157,11 @@ if (data) {
   }
   if (data.top_editors && data.top_editors.length > 0) {
     story.addSlide(new GenericWinnerSlide(data, 'top_editors', 'edited', 'El Indeciso', '✏️', 'mensajes editados'));
+  }
+
+  // Awards Outro (only if there were winners)
+  if (hasAnyWinner) {
+    story.addSlide(new AwardsOutroSlide());
   }
 
   // Conditional: Monthly chart

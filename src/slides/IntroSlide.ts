@@ -17,7 +17,7 @@ export class IntroSlide extends Slide {
                 <h2 class="pre-title">El ${this.data.year} de</h2>
                 <h1 class="group-name">${this.data.group_name}</h1>
                 <h2 class="post-title">WHATSAPP WRAPPED</h2>
-                <h3 class="story-subtitle">Toda una vida en un grupo, condensada en un año de mensajes...</h3>
+                <h3 class="story-subtitle">El resumen de lo que que compartiste con tus amigos este 2025</h3>
             </div>
             <div class="decorations">
                 <span class="bubble b1" style="--d: 1s"></span>

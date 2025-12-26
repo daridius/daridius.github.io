@@ -43,7 +43,7 @@ export class EmojiSlide extends Slide {
 
         return `
         <div class="content-wrapper emoji-slide-content">
-            <h2 class="title">Tus reacciones favoritas...</h2>
+            <h2 class="title">Emojis repetidos hasta el cansancio...</h2>
             <div class="bubble-ranking-container">
                 ${bubblesHtml}
             </div>

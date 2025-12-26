@@ -51,7 +51,7 @@ export class RankingBubblesSlide extends Slide {
             `;
         }).join('');
 
-        const title = this.showWinner ? "¡Rey del Teclado!" : "Los que mantuvieron el chat vivo...";
+        const title = this.showWinner ? "¡El chat podría llevar su nombre!" : "Algunos participaron más que otros...";
 
         return `
         <div class="content-wrapper bubble-ranking-slide">

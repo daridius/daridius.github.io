@@ -1,16 +1,16 @@
 import { Slide } from "../core/Slide";
 import { gsap } from "gsap";
 
-export class AwardsIntroSlide extends Slide {
+export class AwardsOutroSlide extends Slide {
     constructor() {
         super();
     }
 
     getTemplate(): string {
         return `
-        <div class="content-wrapper awards-intro-slide">
+        <div class="content-wrapper awards-outro-slide">
             <style>
-                .awards-intro-slide {
+                .awards-outro-slide {
                     display: flex;
                     flex-direction: column;
                     align-items: center;
@@ -19,56 +19,54 @@ export class AwardsIntroSlide extends Slide {
                     padding: 40px;
                 }
                 
-                .awards-intro-slide .trophy {
-                    font-size: 8rem;
+                .awards-outro-slide .emoji {
+                    font-size: 6rem;
                     margin-bottom: 30px;
-                    filter: drop-shadow(0 10px 30px rgba(255, 215, 0, 0.5));
                     opacity: 0;
                 }
                 
-                .awards-intro-slide h2 {
-                    font-size: 2.5rem;
-                    font-weight: 800;
-                    color: #ffd700;
-                    margin-bottom: 20px;
-                    text-shadow: 0 4px 20px rgba(255, 215, 0, 0.5);
-                    opacity: 0;
-                }
-                
-                .awards-intro-slide p {
-                    font-size: 1.3rem;
+                .awards-outro-slide h2 {
+                    font-size: 2.2rem;
+                    font-weight: 300;
                     color: #e9edef;
+                    margin-bottom: 20px;
+                    opacity: 0;
+                    line-height: 1.4;
+                }
+                
+                .awards-outro-slide p {
+                    font-size: 1.2rem;
+                    color: var(--text-secondary);
                     max-width: 600px;
                     line-height: 1.6;
-                    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
                     opacity: 0;
                 }
             </style>
             
-            <div class="trophy">🏆</div>
-            <h2>Los Premios del Grupo</h2>
-            <p>Y para destacar a las personas que se pasaron de la raya...</p>
+            <div class="emoji">🏆</div>
+            <h2>Muy divertido, ¿no?</h2>
+            <p>¡Pero aún quedan más datos por ver!</p>
         </div>
         `;
     }
 
     onEnter(): void {
-        const trophy = this.element?.querySelector(".trophy");
+        const emoji = this.element?.querySelector(".emoji");
         const title = this.element?.querySelector("h2");
         const subtitle = this.element?.querySelector("p");
 
         const tl = gsap.timeline();
         
-        if (trophy) {
-            tl.fromTo(trophy, 
+        if (emoji) {
+            tl.fromTo(emoji, 
                 { scale: 0, rotation: -180, autoAlpha: 0 }, 
-                { scale: 1, rotation: 0, autoAlpha: 1, duration: 1.2, ease: "elastic.out(1, 0.5)" }
+                { scale: 1, rotation: 0, autoAlpha: 1, duration: 1, ease: "back.out(1.5)" }
             );
         }
         
         if (title) {
             tl.fromTo(title, 
-                { y: 50, autoAlpha: 0 }, 
+                { y: 30, autoAlpha: 0 }, 
                 { y: 0, autoAlpha: 1, duration: 0.8, ease: "power2.out" },
                 "-=0.5"
             );
@@ -76,7 +74,7 @@ export class AwardsIntroSlide extends Slide {
         
         if (subtitle) {
             tl.fromTo(subtitle, 
-                { y: 30, autoAlpha: 0 }, 
+                { y: 20, autoAlpha: 0 }, 
                 { y: 0, autoAlpha: 1, duration: 0.8, ease: "power2.out" },
                 "-=0.6"
             );
@@ -87,7 +85,7 @@ export class AwardsIntroSlide extends Slide {
 
     onLeave(): void {
         this.killAnimations();
-        const elements = this.element?.querySelectorAll(".trophy, h2, p");
+        const elements = this.element?.querySelectorAll(".emoji, h2, p");
         if (elements) {
             gsap.set(elements, { autoAlpha: 0 });
         }
