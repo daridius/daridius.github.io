@@ -7,6 +7,7 @@ export default defineConfig({
             input: {
                 main: 'index.html',
                 upload: 'upload.html',
+                wrapped: 'wrapped/index.html',
             },
         },
     },

@@ -69,7 +69,7 @@ if (kvKey && encKeyB64) {
     }
   } catch (e) {
     console.error("❌ Failed to load from shared link", e);
-    window.location.href = '/error.html';
+    window.location.href = '../error.html';
   }
 }
 
@@ -95,7 +95,7 @@ if (!data) {
     data = loadedData;
   } else {
     console.log("🔄 No data found. Redirecting to upload...");
-    window.location.href = '/upload.html';
+    window.location.href = '../upload.html';
   }
 }
 

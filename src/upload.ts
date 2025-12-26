@@ -222,7 +222,7 @@ async function generateFinalWrapped(data: any) {
     await new Promise(r => setTimeout(r, 800));
 
     console.log('✅ Redirigiendo a visualización...');
-    window.location.href = '/index.html';
+    window.location.href = './wrapped/';
 }
 
 // Global Event Delegation

@@ -21,7 +21,7 @@ export class OutroSlide extends Slide {
                 
                 <div class="actions">
                     <button class="btn-primary share-btn">Compartir este Wrapped</button>
-                    <a href="/upload.html" class="btn-secondary">Haz tu propio Wrapped</a>
+                    <a href="../upload.html" class="btn-secondary">Haz tu propio Wrapped</a>
                 </div>
             </div>
             <div class="decorations">
