@@ -1,4 +1,4 @@
-const KV_WORKER_URL = 'http://127.0.0.1:8787';
+const KV_WORKER_URL = 'https://wasap.daridius.workers.dev';
 
 export interface KVResponse {
     key: string;
