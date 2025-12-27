@@ -31,7 +31,7 @@ export class StoryController {
             return `<div class="slide slide-${index}" data-index="${index}">
                 ${slide.getTemplate()}
             </div>`;
-        }).join('') + this.getNavigationOverlay() + this.getHintsOverlay();
+        }).join('') + this.getHintsOverlay();
 
         // Mount slides
         this.slideElements = Array.from(this.container.querySelectorAll('.slide')) as HTMLElement[];
@@ -51,13 +51,7 @@ export class StoryController {
         this.showHints();
     }
 
-    private getNavigationOverlay(): string {
-        return `
-        <div class="navigation-overlay">
-            <div class="nav-left"></div>
-            <div class="nav-right"></div>
-        </div>`;
-    }
+    // Navigation is now handled by a global click listener on the container
 
     private getHintsOverlay(): string {
         return `
@@ -107,11 +101,25 @@ export class StoryController {
     }
 
     private bindNavigationEvents() {
-        const left = this.container.querySelector('.nav-left');
-        const right = this.container.querySelector('.nav-right');
+        // Global Click Navigation (Taps covering 50% width each)
+        this.container.addEventListener('click', (e) => {
+            const target = e.target as HTMLElement;
 
-        left?.addEventListener('click', () => this.prev());
-        right?.addEventListener('click', () => this.next());
+            // Si es un botón, link o elemento con clase 'interactive', dejamos que su propio listener actúe
+            if (target.closest('button, a, .interactive')) {
+                console.log('StoryController: Clicking interactive element, ignoring navigation tap.');
+                return;
+            }
+
+            const x = e.clientX;
+            const width = window.innerWidth;
+
+            if (x < width / 2) {
+                this.prev();
+            } else {
+                this.next();
+            }
+        });
 
         // Swipe Detection
         this.container.addEventListener('touchstart', (e) => {

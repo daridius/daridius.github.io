@@ -151,30 +151,7 @@ body {
   pointer-events: auto;
 }
 
-/* Navigation Overlay */
-.navigation-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  z-index: 100;
-  pointer-events: none;
-}
-
-.nav-left,
-.nav-right {
-  flex: 1;
-  height: 100%;
-  cursor: pointer;
-  pointer-events: auto;
-  appearance: none;
-  border: none;
-  background: transparent;
-  outline: none;
-  -webkit-tap-highlight-color: transparent;
-}
+/* Navigation Hint Overlay (Visual Only) */
 
 /* Navigation Hints - Bordered & Minimal */
 .nav-hints {
