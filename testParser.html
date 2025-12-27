@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -27,7 +28,7 @@
             background: white;
             padding: 30px;
             border-radius: 15px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
             margin-bottom: 30px;
             text-align: center;
         }
@@ -47,7 +48,7 @@
             background: white;
             padding: 40px;
             border-radius: 15px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
             margin-bottom: 30px;
             text-align: center;
             border: 3px dashed #667eea;
@@ -92,7 +93,7 @@
             background: white;
             padding: 25px;
             border-radius: 15px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
             text-align: center;
         }
 
@@ -117,7 +118,7 @@
             background: white;
             padding: 30px;
             border-radius: 15px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
             margin-bottom: 30px;
         }
 
@@ -141,7 +142,8 @@
             color: white;
         }
 
-        th, td {
+        th,
+        td {
             padding: 12px;
             text-align: left;
             border-bottom: 1px solid #eee;
@@ -174,20 +176,81 @@
             text-transform: uppercase;
         }
 
-        .type-image { background: #e3f2fd; color: #1976d2; }
-        .type-video { background: #f3e5f5; color: #7b1fa2; }
-        .type-audio { background: #fff3e0; color: #f57c00; }
-        .type-sticker { background: #e8f5e9; color: #388e3c; }
-        .type-gif { background: #fce4ec; color: #c2185b; }
-        .type-document { background: #e0f2f1; color: #00796b; }
-        .type-omitted { background: #f5f5f5; color: #616161; }
-        .type-encryption { background: #e8eaf6; color: #3f51b5; }
-        .type-deleted { background: #ffebee; color: #c62828; }
-        .type-edited { background: #fff9c4; color: #f57f17; }
-        .type-group_created { background: #e1f5fe; color: #0277bd; }
-        .type-user_added { background: #e8f5e9; color: #2e7d32; }
-        .type-call_missed { background: #fce4ec; color: #ad1457; }
-        .type-poll { background: #f3e5f5; color: #6a1b9a; }
+        .type-image {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .type-video {
+            background: #f3e5f5;
+            color: #7b1fa2;
+        }
+
+        .type-audio {
+            background: #fff3e0;
+            color: #f57c00;
+        }
+
+        .type-sticker {
+            background: #e8f5e9;
+            color: #388e3c;
+        }
+
+        .type-gif {
+            background: #fce4ec;
+            color: #c2185b;
+        }
+
+        .type-document {
+            background: #e0f2f1;
+            color: #00796b;
+        }
+
+        .type-omitted {
+            background: #f5f5f5;
+            color: #616161;
+        }
+
+        .type-encryption {
+            background: #e8eaf6;
+            color: #3f51b5;
+        }
+
+        .type-deleted {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .type-edited {
+            background: #fff9c4;
+            color: #f57f17;
+        }
+
+        .type-group_created {
+            background: #e1f5fe;
+            color: #0277bd;
+        }
+
+        .type-user_added {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .type-call_missed {
+            background: #fce4ec;
+            color: #ad1457;
+        }
+
+        .type-poll {
+            background: #f3e5f5;
+            color: #6a1b9a;
+        }
+
+        .type-meta_ai {
+            background: #f0f0ff;
+            color: #3d5afe;
+            border: 1px solid #3d5afe;
+        }
 
         .loading {
             display: none;
@@ -212,8 +275,13 @@
         }
 
         @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
         }
 
         .results {
@@ -225,6 +293,7 @@
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <div class="header">
@@ -233,11 +302,11 @@
         </div>
 
         <div class="upload-zone" id="uploadZone">
-            <div class="upload-icon">📁</div>
+            <div class="upload-icon">📦</div>
             <label for="fileInput" class="upload-label">
-                <strong>Click para seleccionar</strong> o arrastra un archivo .txt aquí
+                <strong>Click para seleccionar</strong> o arrastra tu chat aquí (.txt o .zip)
             </label>
-            <input type="file" id="fileInput" accept=".txt">
+            <input type="file" id="fileInput" accept=".txt,.zip">
         </div>
 
         <div class="loading" id="loading">
@@ -265,7 +334,12 @@
             </div>
 
             <div class="section">
-                <h2 class="section-title">💬 Mensajes Normales</h2>
+                <h2 class="section-title">👥 Participantes Detectados</h2>
+                <div id="participantsList"></div>
+            </div>
+
+            <div class="section">
+                <h2 class="section-title">💬 Mensajes Normales (Top 50)</h2>
                 <div id="messagesTable"></div>
             </div>
 
@@ -283,4 +357,5 @@
 
     <script type="module" src="/src/testParser.ts"></script>
 </body>
+
 </html>

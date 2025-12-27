@@ -89,12 +89,12 @@ export interface ParsedMessage {
  * Detectables por attachment (cuando hay archivo real):
  * - [tipo]_attached: Cualquiera de los anteriores cuando hay fileName
  */
-export type MediaType = 
-    | 'image' 
-    | 'video' 
-    | 'audio' 
-    | 'sticker' 
-    | 'gif' 
+export type MediaType =
+    | 'image'
+    | 'video'
+    | 'audio'
+    | 'sticker'
+    | 'gif'
     | 'document'
     | 'contact'
     | 'location'
@@ -107,7 +107,7 @@ export interface MediaMessage {
     fileName: string | null; // null cuando es "omitted", string cuando hay attachment real
 }
 
-export type SystemType = 
+export type SystemType =
     | 'encryption'
     | 'deleted'
     | 'group_created'
@@ -119,6 +119,7 @@ export type SystemType =
     | 'poll'
     | 'event'
     | 'location_shared'
+    | 'meta_ai'
     | 'undefined';
 
 export interface SystemMessage {
@@ -152,35 +153,35 @@ function detectMediaByAttachment(
     date: Date
 ): MediaMessage | null {
     const fileName = attachment.fileName.toLowerCase();
-    
+
     // Extraer extensión
     const ext = fileName.split('.').pop() || '';
-    
+
     // Detectar por prefijo de WhatsApp
     if (fileName.startsWith('img-') || ['jpg', 'jpeg', 'png', 'gif', 'bmp'].includes(ext)) {
         return { date, author, type: 'image', fileName: attachment.fileName };
     }
-    
+
     if (fileName.startsWith('vid-') || ['mp4', '3gp', 'avi', 'mov', 'mkv'].includes(ext)) {
         return { date, author, type: 'video', fileName: attachment.fileName };
     }
-    
+
     if (fileName.startsWith('ptt-') || fileName.startsWith('aud-') || ['opus', 'aac', 'm4a', 'mp3', 'ogg', 'wav'].includes(ext)) {
         return { date, author, type: 'audio', fileName: attachment.fileName };
     }
-    
+
     if (fileName.startsWith('stk-') || ext === 'webp') {
         return { date, author, type: 'sticker', fileName: attachment.fileName };
     }
-    
+
     if (ext === 'vcf') {
         return { date, author, type: 'contact', fileName: attachment.fileName };
     }
-    
+
     if (['pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'txt', 'zip', 'rar', '7z'].includes(ext)) {
         return { date, author, type: 'document', fileName: attachment.fileName };
     }
-    
+
     // Si no se puede clasificar, tipo genérico omitted
     return { date, author, type: 'omitted', fileName: attachment.fileName };
 }
@@ -195,22 +196,22 @@ function detectMediaByAttachment(
  * - Si hay attachment real → type: [detectado], fileName: [nombre del archivo]
  */
 function detectOmittedMedia(
-    content: string, 
-    author: string | null, 
+    content: string,
+    author: string | null,
     date: Date,
     attachment?: { fileName: string }
 ): MediaMessage | null {
     // Si termina con "(archivo adjunto)", "(file attached)" o patrón iOS "<adjunto: ...>" / "<attached: ...>"
-    if (/\(archivo adjunto\)$/i.test(content) || 
+    if (/\(archivo adjunto\)$/i.test(content) ||
         /\(file attached\)$/i.test(content) ||
         /\u200e?<(adjunto|attached):\s*.+>$/i.test(content)) {
         return { date, author, type: 'omitted', fileName: attachment?.fileName || null };
     }
-    
+
     const patterns = {
         // iOS/Android English - Generic
         media_generic: /<Media omitted>|<Multimedia omitido>|<Archivo omitido>/i,
-        
+
         // Tipos específicos - Spanish
         image_es: /\u200e?imagen omitida/i,
         video_es: /\u200e?video omitido/i,
@@ -219,7 +220,7 @@ function detectOmittedMedia(
         gif_es: /\u200e?GIF omitido/i,
         document_es: /\u200e?documento omitido/i,
         contact_es: /\u200e?contacto omitido/i,
-        
+
         // Tipos específicos - English
         image_en: /\u200e?image omitted/i,
         video_en: /\u200e?video omitted/i,
@@ -229,7 +230,7 @@ function detectOmittedMedia(
         document_en: /\u200e?document omitted/i,
         contact_en: /\u200e?contact omitted/i,
     };
-    
+
     // Intentar detectar tipo específico primero
     if (patterns.image_es.test(content) || patterns.image_en.test(content)) {
         return { date, author, type: 'image', fileName: attachment?.fileName || null };
@@ -252,12 +253,12 @@ function detectOmittedMedia(
     if (patterns.contact_es.test(content) || patterns.contact_en.test(content)) {
         return { date, author, type: 'contact', fileName: attachment?.fileName || null };
     }
-    
+
     // Si no encontró tipo específico, buscar genérico
     if (patterns.media_generic.test(content)) {
         return { date, author, type: 'omitted', fileName: attachment?.fileName || null };
     }
-    
+
     return null;
 }
 
@@ -277,10 +278,14 @@ function detectEncryption(content: string): boolean {
 
 function detectDeleted(content: string): boolean {
     const patterns = {
-        ANDROID_EN: /^You deleted this message$/i,
-        ANDROID_ES: /^Eliminaste este mensaje\.$/i,
-        IOS_EN: /^\u200e?This message was deleted\.$/i,
-        IOS_ES: /^\u200e?Se eliminó este mensaje\.$/i,
+        ANDROID_EN_1ST: /^You deleted this message$/i,
+        ANDROID_EN_3RD: /^This message was deleted$/i,
+        ANDROID_ES_1ST: /^Eliminaste este mensaje\.$/i,
+        ANDROID_ES_3RD: /^Se eliminó este mensaje\.$/i,
+        IOS_EN_1ST: /^\u200e?You deleted this message\.$/i,
+        IOS_EN_3RD: /^\u200e?This message was deleted\.$/i,
+        IOS_ES_1ST: /^\u200e?Eliminaste este mensaje\.$/i,
+        IOS_ES_3RD: /^\u200e?Se eliminó este mensaje\.$/i,
     };
     return Object.values(patterns).some(p => p.test(content));
 }
@@ -311,50 +316,72 @@ function cleanEditedMessage(content: string): string {
 
 function detectGroupCreated(content: string): boolean {
     const patterns = {
-        ANDROID_EN: /^You created this group$/i,
-        ANDROID_ES: /^Creaste este grupo$/i,
-        IOS_EN: /created group "(.+)"$/i,
-        IOS_ES: /creó el grupo "(.+)"\.$/i,
+        ANDROID_EN_1ST: /^You created this group$/i,
+        ANDROID_EN_3RD: /^.+ created this group$/i,
+        ANDROID_ES_1ST: /^Creaste este grupo$/i,
+        ANDROID_ES_3RD: /^.+ creó este grupo$/i,
+        IOS_EN_1ST: /^\u200e?You created group "(.+)"$/i,
+        IOS_EN_3RD: /^\u200e?.+ created group "(.+)"$/i,
+        IOS_ES_1ST: /^\u200e?Creaste el grupo "(.+)"\.$/i,
+        IOS_ES_3RD: /^\u200e?.+ creó el grupo "(.+)"\.$/i,
     };
     return Object.values(patterns).some(p => p.test(content));
 }
 
 function detectGroupRenamed(content: string): boolean {
     const patterns = {
-        ANDROID_EN: /^You changed the group name from "(.+)" to "(.+)"$/i,
-        ANDROID_ES: /^Cambiaste el nombre del grupo de "(.+)" a "(.+)"\.$/i,
-        IOS_EN: /changed the group name from "(.+)" to "(.+)"$/i,
-        IOS_ES: /cambió el nombre del grupo de "(.+)" a "(.+)"\.$/i,
+        ANDROID_EN_1ST: /^You changed the group name from "(.+)" to "(.+)"$/i,
+        ANDROID_EN_3RD: /^.+ changed the group name from "(.+)" to "(.+)"$/i,
+        ANDROID_ES_1ST: /^Cambiaste el nombre del grupo de "(.+)" a "(.+)"\.$/i,
+        ANDROID_ES_3RD: /^.+ cambió el nombre del grupo de "(.+)" a "(.+)"\.$/i,
+        IOS_EN_1ST: /^\u200e?You changed the group name from "(.+)" to "(.+)"$/i,
+        IOS_EN_3RD: /^\u200e?.+ changed the group name from "(.+)" to "(.+)"$/i,
+        IOS_ES_1ST: /^\u200e?Cambiaste el nombre del grupo de "(.+)" a "(.+)"\.$/i,
+        IOS_ES_3RD: /^\u200e?.+ cambió el nombre del grupo de "(.+)" a "(.+)"\.$/i,
     };
     return Object.values(patterns).some(p => p.test(content));
 }
 
 function detectUserAdded(content: string): boolean {
     const patterns = {
-        ANDROID_EN: /^(You added|were added)/i,
-        ANDROID_ES: /^(Añadiste a|Se añadió a)/i,
-        IOS_EN: /^\u200e?.+ (added|added you)/i,
-        IOS_ES: /^\u200e?.+ (añadió a|te añadió)/i,
+        ANDROID_EN_1ST: /^You added (.+)$/i,
+        ANDROID_EN_3RD: /^.+ added you$/i,
+        ANDROID_EN_GENERIC: /^were added$/i,
+        ANDROID_ES_1ST: /^Añadiste a (.+)$/i,
+        ANDROID_ES_3RD: /^.+ te añadió$/i,
+        ANDROID_ES_GENERIC: /^Se añadió a (.+)$/i,
+        IOS_EN_1ST: /^\u200e?You added (.+)$/i,
+        IOS_EN_3RD: /^\u200e?.+ (added|added you)/i,
+        IOS_ES_1ST: /^\u200e?Añadiste a (.+)$/i,
+        IOS_ES_3RD: /^\u200e?.+ (añadió a|te añadió)/i,
     };
     return Object.values(patterns).some(p => p.test(content));
 }
 
 function detectUserRemoved(content: string): boolean {
     const patterns = {
-        ANDROID_EN: /^You removed .+$/i,
-        ANDROID_ES: /^Eliminaste a .+\.$/i,
-        IOS_EN: /^\u200e?.+ removed .+$/i,
-        IOS_ES: /^\u200e?.+ eliminó a .+\.$/i,
+        ANDROID_EN_1ST: /^You removed (.+)$/i,
+        ANDROID_EN_3RD: /^.+ removed (.+)$/i,
+        ANDROID_ES_1ST: /^Eliminaste a (.+)\.$/i,
+        ANDROID_ES_3RD: /^.+ eliminó a (.+)\.$/i,
+        IOS_EN_1ST: /^\u200e?You removed (.+)$/i,
+        IOS_EN_3RD: /^\u200e?.+ removed (.+)$/i,
+        IOS_ES_1ST: /^\u200e?Eliminaste a (.+)\.$/i,
+        IOS_ES_3RD: /^\u200e?.+ eliminó a (.+)\.$/i,
     };
     return Object.values(patterns).some(p => p.test(content));
 }
 
 function detectUserLeft(content: string): boolean {
     const patterns = {
-        ANDROID_EN: /^.+ left$/i,
-        ANDROID_ES: /^\u200e?.+ salió del grupo\.$/i,
-        IOS_EN: /^\u200e?.+ left$/i,
-        IOS_ES: /^\u200e?.+ salió del grupo\.$/i,
+        ANDROID_EN_1ST: /^You left$/i,
+        ANDROID_EN_3RD: /^.+ left$/i,
+        ANDROID_ES_1ST: /^Saliste del grupo\.$/i,
+        ANDROID_ES_3RD: /^.+ salió del grupo\.$/i,
+        IOS_EN_1ST: /^\u200e?You left$/i,
+        IOS_EN_3RD: /^\u200e?.+ left$/i,
+        IOS_ES_1ST: /^\u200e?Saliste del grupo\.$/i,
+        IOS_ES_3RD: /^\u200e?.+ salió del grupo\.$/i,
     };
     return Object.values(patterns).some(p => p.test(content));
 }
@@ -441,13 +468,13 @@ function detectSystemMessage(
     if (detectLocationShared(content)) {
         return { date, author, type: 'location_shared', content };
     }
-    
+
     // CATCH-ALL: Si el mensaje empieza con U+200E pero no fue detectado,
     // es probablemente un system message que no identificamos
     if (content.startsWith('\u200e')) {
         return { date, author, type: 'undefined', content };
     }
-    
+
     return null;
 }
 
@@ -458,7 +485,7 @@ function detectSystemMessage(
 export function parseWhatsAppChat(chatContent: string): ParsedChatResult {
     // PASO 1: Usar whatsapp-chat-parser para descomponer el chat con attachments
     const rawMessages = parseString(chatContent, { parseAttachments: true });
-    
+
     console.log('\n========================================');
     console.log(`📦 MENSAJES PARSEADOS POR whatsapp-chat-parser (${rawMessages.length} total):`);
     console.log('========================================\n');
@@ -470,25 +497,31 @@ export function parseWhatsAppChat(chatContent: string): ParsedChatResult {
         attachment: msg.attachment?.fileName || '-'
     })));
     console.log('========================================\n');
-    
+
     // OPTIMIZACIÓN: Filtrar solo mensajes del 2025
     const messages2025 = rawMessages.filter(msg => {
         if (!msg.date) return false;
         return msg.date.getFullYear() === 2025;
     });
-    
+
     console.log(`🔍 FILTRO: ${rawMessages.length} mensajes → ${messages2025.length} mensajes del 2025\n`);
-    
+
     // PASO 2: Clasificar mensajes en 3 categorías
     const messages: ParsedMessage[] = [];
     const media: MediaMessage[] = [];
     const system: SystemMessage[] = [];
-    
+
     messages2025.forEach(msg => {
         const content = msg.message || '';
         const author = msg.author || null;
         const date = msg.date;
-        
+
+        // FILTRO META AI: Si es un mensaje de la IA de Meta, lo mandamos a sistema
+        if (author === 'Meta AI') {
+            system.push({ date, author, type: 'meta_ai', content });
+            return;
+        }
+
         // PRIMER FILTRO: Detectar archivos adjuntos reales
         if (msg.attachment) {
             const attachmentMedia = detectMediaByAttachment(msg.attachment, author, date);
@@ -497,38 +530,38 @@ export function parseWhatsAppChat(chatContent: string): ParsedChatResult {
                 return;
             }
         }
-        
+
         // Detectar media omitida (sin archivo adjunto)
         const mediaDetected = detectOmittedMedia(content, author, date, msg.attachment);
         if (mediaDetected) {
             media.push(mediaDetected);
             return; // No agregar a messages normales
         }
-        
+
         // Detectar system messages
         const systemDetected = detectSystemMessage(content, author, date);
         if (systemDetected) {
             system.push(systemDetected);
             return;
         }
-        
+
         // CATCH-ALL: Si no tiene autor, whatsapp-chat-parser lo detectó como system message
         // Lo clasificamos como undefined para investigarlo
         if (!author) {
             system.push({ date, author, type: 'undefined', content });
             return;
         }
-        
+
         // CATCH-ALL FINAL: Si contiene U+200E en cualquier parte, probablemente es system message
         if (content.includes('\u200e')) {
             system.push({ date, author, type: 'undefined', content });
             return;
         }
-        
+
         // Detectar mensajes editados y limpiar el contenido
         const isEdited = detectEdited(content);
         const cleanContent = isEdited ? cleanEditedMessage(content) : content;
-        
+
         // Si no es media ni system, es mensaje normal
         messages.push({
             date,
@@ -538,12 +571,12 @@ export function parseWhatsAppChat(chatContent: string): ParsedChatResult {
             edited: isEdited
         });
     });
-    
+
     console.log('📊 CLASIFICACIÓN:');
     console.log(`   💬 Mensajes normales: ${messages.length}`);
     console.log(`   📸 Media omitida: ${media.length}`);
     console.log(`   ⚙️  System messages: ${system.length}`);
-    
+
     if (media.length > 0) {
         console.log('\n📸 MEDIA DETECTADA:');
         console.table(media.map((m, i) => ({
@@ -554,7 +587,7 @@ export function parseWhatsAppChat(chatContent: string): ParsedChatResult {
             fileName: m.fileName || '-'
         })));
     }
-    
+
     if (system.length > 0) {
         console.log('\n⚙️  SYSTEM MESSAGES DETECTADOS:');
         console.table(system.map((s, i) => ({
@@ -565,11 +598,11 @@ export function parseWhatsAppChat(chatContent: string): ParsedChatResult {
             content: s.content.substring(0, 50) + (s.content.length > 50 ? '...' : '')
         })));
     }
-    
+
     console.log('\n========================================');
     console.log('📦 RESULTADO FINAL - 3 LISTAS:');
     console.log('========================================');
-    
+
     console.log('\n💬 MESSAGES (mensajes normales):');
     if (messages.length > 0) {
         console.table(messages.slice(0, 10).map((m, i) => ({
@@ -585,7 +618,7 @@ export function parseWhatsAppChat(chatContent: string): ParsedChatResult {
     } else {
         console.log('   (vacío)');
     }
-    
+
     console.log('\n📸 MEDIA (media omitida o adjunta):');
     if (media.length > 0) {
         console.table(media.map((m, i) => ({
@@ -598,7 +631,7 @@ export function parseWhatsAppChat(chatContent: string): ParsedChatResult {
     } else {
         console.log('   (vacío)');
     }
-    
+
     console.log('\n⚙️  SYSTEM (mensajes del sistema):');
     if (system.length > 0) {
         console.table(system.map((s, i) => ({
@@ -611,11 +644,11 @@ export function parseWhatsAppChat(chatContent: string): ParsedChatResult {
     } else {
         console.log('   (vacío)');
     }
-    
+
     console.log('\n========================================');
     console.log(`✅ TOTAL: ${messages.length} mensajes, ${media.length} media, ${system.length} system`);
     console.log('========================================\n');
-    
+
     return { messages, media, system };
 }
 
