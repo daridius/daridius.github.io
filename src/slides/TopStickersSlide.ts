@@ -32,7 +32,7 @@ export class TopStickersSlide extends Slide {
             const size = Math.max(minSize, baseSize * relativeScale);
             const pos = positions[i];
             const rankClass = `rank-${i + 1}`;
-            
+
             const crownHtml = i === 0 ? '<div class="b-crown" style="filter: drop-shadow(0 4px 8px rgba(0,0,0,0.5));">👑</div>' : '';
 
             return `
@@ -77,7 +77,7 @@ export class TopStickersSlide extends Slide {
         const bubbles = this.element?.querySelectorAll(".member-bubble");
 
         const tl = gsap.timeline();
-        
+
         if (title) {
             tl.fromTo(title, { y: -50, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 0.8 });
         }
@@ -107,7 +107,7 @@ export class TopStickersSlide extends Slide {
 
     onLeave(): void {
         this.killAnimations();
-        const elements = this.element?.querySelectorAll(".intro h2, .member-bubble");
+        const elements = this.element?.querySelectorAll(".title, .member-bubble");
         if (elements) {
             gsap.set(elements, { autoAlpha: 0 });
         }
