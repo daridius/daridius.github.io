@@ -94,8 +94,8 @@ if (!data) {
   if (loadedData) {
     data = loadedData;
   } else {
-    console.log("🔄 No data found. Redirecting to upload...");
-    window.location.href = '../upload.html';
+    console.log("🔄 No data found. Redirecting to home with upload trigger...");
+    window.location.href = '../?open=true';
   }
 }
 

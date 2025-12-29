@@ -142,29 +142,36 @@ async function processFile(file: File) {
 
     } catch (err) {
         console.error("❌ Error processing file:", err);
-        setStatus(err instanceof Error ? err.message : "Something went wrong.", "error");
+        setStatus(err instanceof Error ? err.message : "Algo salió mal.", "error");
     }
 }
 
 function showNamesEditor(data: any) {
     setStatus("Personaliza nombres", "visible");
-    const card = document.querySelector(".upload-card");
-    if (!card) return;
+    const modalContent = document.querySelector(".modal-content");
+    const modal = document.getElementById("upload-modal");
+    if (!modalContent || !modal) return;
+
+    // Scroll to top of modal
+    modal.scrollTo(0, 0);
 
     // Editamos el array de participants directamente
     const participants = data.participants;
 
     let participantsHtml = participants.map((name: string, i: number) => `
         <div class="name-input-group">
-            <label>Participante #${i + 1}</label>
             <input type="text" class="participant-name-input" data-index="${i}" value="${name}">
         </div>
     `).join('');
 
-    card.innerHTML = `
-        <div class="names-editor">
-            <h2>Corregir nombres</h2>
-            <p>A veces los nombres vienen con "grupo de trabajo" o extras. ¡Déjalos bonitos!</p>
+    modalContent.innerHTML = `
+        <div class="modal-header">
+            <h2 class="modal-title">Personaliza nombres</h2>
+            <button id="close-modal-btn" class="close-modal-btn">&times;</button>
+        </div>
+        <div class="names-editor" style="background: none; padding: 0;">
+            <p>Aquí aparecen los "nominados" a salir en tu historia. ¡Dales un nombre bonito!</p>
+            <p style="font-size: 0.8em; margin-top: -15px; opacity: 0.8;">(No aparecen todos los del chat, solo los que tuvieron más protagonismo este año)</p>
             
             <div class="names-list">
                 <div class="name-input-group">
@@ -172,6 +179,9 @@ function showNamesEditor(data: any) {
                     <input type="text" id="group-name-input" value="${data.group_name}">
                 </div>
                 <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.1); margin: 8px 0;">
+                <div class="name-input-group" style="margin-bottom: -8px;">
+                    <label>NOMINADOS AL WRAPPED</label>
+                </div>
                 ${participantsHtml}
             </div>
 
@@ -180,6 +190,9 @@ function showNamesEditor(data: any) {
             </div>
         </div>
     `;
+
+    // Re-bind listeners for the new elements
+    document.getElementById("close-modal-btn")?.addEventListener("click", closeModal);
 
     document.getElementById("generate-btn")?.addEventListener("click", () => {
         // Update Data
@@ -224,6 +237,70 @@ async function generateFinalWrapped(data: any) {
     console.log('✅ Redirigiendo a visualización...');
     window.location.href = './wrapped/';
 }
+
+// --- Modal Logic ---
+const modal = document.getElementById("upload-modal");
+const openBtn = document.getElementById("open-upload-btn");
+const closeBtn = document.getElementById("close-modal-btn");
+
+function closeModal() {
+    if (!modal) return;
+    modal.classList.remove("active");
+    // Esperar a que termine la transición (0.3s) antes de ocultar
+    setTimeout(() => {
+        modal.style.display = "none";
+    }, 300);
+}
+
+if (modal && openBtn && closeBtn) {
+    openBtn.addEventListener("click", () => {
+        modal.style.display = "flex";
+        // Pequeño delay para permitir que el navegador renderice el display:flex
+        // antes de aplicar la clase active para la transición
+        requestAnimationFrame(() => {
+            modal.classList.add("active");
+        });
+    });
+
+    closeBtn.addEventListener("click", closeModal);
+
+    modal.addEventListener("click", (e) => {
+        if (e.target === modal) {
+            closeModal();
+        }
+    });
+
+    // Auto-open modal if ?open=true is in URL
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('open') === 'true') {
+        openBtn.click();
+    }
+}
+
+// --- Tabs Logic ---
+const tabs = document.querySelectorAll(".tab-btn");
+const contents = document.querySelectorAll(".instructions-content");
+
+tabs.forEach(tab => {
+    tab.addEventListener("click", () => {
+        // Remove active class from all tabs
+        tabs.forEach(t => t.classList.remove("active"));
+        // Add to clicked
+        tab.classList.add("active");
+
+        const targetId = (tab as HTMLElement).dataset.tab; // android or ios
+
+        // Hide all contents
+        contents.forEach(c => c.classList.add("hidden"));
+
+        // Show target
+        const targetContent = document.getElementById(`tab-${targetId}`);
+        if (targetContent) {
+            targetContent.classList.remove("hidden");
+        }
+    });
+});
+
 
 // Global Event Delegation
 document.addEventListener("change", (e) => {

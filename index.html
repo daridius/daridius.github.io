@@ -1,18 +1,99 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WhatsApp Wrapped 2025</title>
   <link rel="icon" type="image/png" href="./favicon.png">
-  <meta http-equiv="refresh" content="0; url=./upload.html">
-  <title>Redirigiendo...</title>
-  <script>
-    window.location.href = "./upload.html";
-  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet" />
 </head>
 
 <body>
-  Si no eres redirigido, <a href="./upload.html">haz clic aquí</a>.
+  <div class="background-decorations">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+  </div>
+
+  <!-- Landing Hero -->
+  <div class="landing-hero">
+    <h1 class="landing-title">WhatsApp Wrapped</h1>
+    <div class="landing-subtitle" style="display: flex; flex-direction: column; align-items: center;">
+      <p style="font-size: 1.25em; margin-bottom: 0.5rem; color: #fff; font-weight: 600;">Descubre las historias detrás
+        de tus chats <span style="color: #25d366;">con total privacidad</span></p>
+      <p style="font-size: 0.85em; opacity: 0.8; font-weight: 300; max-width: 500px;">Tus mensajes nunca salen de tu
+        teléfono. Solo se genera un resumen de estadísticas que se guarda de forma segura y secreta para que puedas
+        compartirlo.</p>
+    </div>
+    <button id="open-upload-btn" class="btn-primary" style="margin-top: 2rem;">Crear mi Wrapped</button>
+  </div>
+
+  <!-- Upload Modal -->
+  <div id="upload-modal" class="modal-overlay" style="display: none;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title">Subir Chat</h2>
+        <button id="close-modal-btn" class="close-modal-btn">&times;</button>
+      </div>
+
+      <!-- Tabs -->
+      <div class="tabs-container">
+        <button class="tab-btn active" data-tab="android">
+
+          Android
+        </button>
+        <button class="tab-btn" data-tab="ios">
+
+          iOS
+        </button>
+      </div>
+
+      <!-- Content -->
+      <div id="tab-android" class="instructions-content">
+        <ul class="instructions-list">
+          <li><span class="step-number">1.</span> Abre un chat en WhatsApp</li>
+          <li><span class="step-number">2.</span> Toca los tres puntos (⋮) > Más > Exportar chat</li>
+          <li><span class="step-number">3.</span> Elige 'Incluir archivos' (opcional) para ver stickers y multimedia, o
+            'Sin archivos' para mayor rapidez.</li>
+          <li><span class="step-number">4.</span> Sube el archivo .txt o .zip aquí abajo</li>
+        </ul>
+        <p style="font-size: 0.8em; opacity: 0.7; margin-top: 15px; text-align: center;">💡 Importante: Tu celular debe
+          estar en <b>Español</b> o <b>Inglés</b> para que el análisis funcione correctamente.</p>
+      </div>
+
+      <div id="tab-ios" class="instructions-content hidden">
+        <ul class="instructions-list">
+          <li><span class="step-number">1.</span> Abre un chat en WhatsApp</li>
+          <li><span class="step-number">2.</span> Toca el nombre del contacto o grupo arriba</li>
+          <li><span class="step-number">3.</span> Baja y toca 'Exportar chat'</li>
+          <li><span class="step-number">4.</span> Elige 'Incluir archivos' (opcional) para ver stickers y multimedia, o
+            'Sin archivos' para mayor rapidez.</li>
+          <li><span class="step-number">5.</span> Guárdalo en Archivos y súbelo aquí abajo</li>
+        </ul>
+        <p style="font-size: 0.8em; opacity: 0.7; margin-top: 15px; text-align: center;">💡 Importante: Tu celular debe
+          estar en <b>Español</b> o <b>Inglés</b> para que el análisis funcione correctamente.</p>
+      </div>
+
+      <!-- Upload Widget Wrapper -->
+      <div id="upload-container">
+        <label class="drop-zone-mini" id="drop-zone">
+          <svg class="drop-icon" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33 3 3 0 013.758 3.848A3.752 3.752 0 0118 19.5H6.75z">
+            </path>
+          </svg>
+          <div class="drop-title">Arrastra y suelta o haz clic para subir</div>
+          <div class="drop-subtitle">Soporta archivos .txt y .zip</div>
+          <input type="file" id="file-upload" accept=".txt,.zip" style="display:none;" />
+        </label>
+
+        <div id="status" class="status"></div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="/src/upload.ts"></script>
 </body>
 
 </html>
