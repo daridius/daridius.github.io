@@ -137,6 +137,7 @@ function getMostFrequentMessage(result: ParsedChatResult) {
     const messageCounts = new Map<string, { author: string; count: number }>();
 
     result.messages.forEach(m => {
+        // Ignorar mensajes vacíos (incluyendo los que vaciamos "Esperando este mensaje")
         if (m.author && m.content.trim().length > 0) {
             const key = m.content.trim().toLowerCase();
             const author = cleanName(m.author);

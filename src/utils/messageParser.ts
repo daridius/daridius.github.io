@@ -522,6 +522,19 @@ export function parseWhatsAppChat(chatContent: string): ParsedChatResult {
             return;
         }
 
+        // FILTRO: Mensajes de "Esperando este mensaje" (Waiting for this message)
+        // El usuario pide no contabilizarlos en estadísticas de texto, pero dejarlos como mensaje vacío.
+        if (/(Waiting for this message|Esperando este mensaje)/i.test(content)) {
+            messages.push({
+                date,
+                author,
+                content: "", // Contenido vacío para no sumar palabras
+                attachment: msg.attachment,
+                edited: false
+            });
+            return;
+        }
+
         // PRIMER FILTRO: Detectar archivos adjuntos reales
         if (msg.attachment) {
             const attachmentMedia = detectMediaByAttachment(msg.attachment, author, date);
