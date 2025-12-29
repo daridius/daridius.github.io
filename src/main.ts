@@ -215,5 +215,11 @@ if (data) {
   story.addSlide(new OutroSlide(data));
 
   story.start();
+
+  // Hide loader immediately
+  const loader = document.getElementById('loader');
+  if (loader) {
+    loader.classList.add('loaded');
+  }
 }
 

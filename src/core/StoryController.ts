@@ -31,7 +31,7 @@ export class StoryController {
             return `<div class="slide slide-${index}" data-index="${index}">
                 ${slide.getTemplate()}
             </div>`;
-        }).join('') + this.getHintsOverlay();
+        }).join('') + this.getHintsOverlay() + this.getProgressBarHTML();
 
         // Mount slides
         this.slideElements = Array.from(this.container.querySelectorAll('.slide')) as HTMLElement[];
@@ -44,6 +44,9 @@ export class StoryController {
         gsap.set(firstSlideEl, { autoAlpha: 1, zIndex: 150 });
         this.slides[0].onEnter();
 
+        // Init Progress Bar
+        this.updateProgressBar();
+
         // Setup navigation listeners
         this.bindNavigationEvents();
 
@@ -52,6 +55,25 @@ export class StoryController {
     }
 
     // Navigation is now handled by a global click listener on the container
+
+    private getProgressBarHTML(): string {
+        const segments = this.slides.map((_, i) =>
+            `<div class="progress-segment" data-index="${i}"><div class="fill"></div></div>`
+        ).join('');
+        return `<div class="story-progress-container">${segments}</div>`;
+    }
+
+    private updateProgressBar() {
+        const segments = this.container.querySelectorAll('.progress-segment');
+        segments.forEach((seg, i) => {
+            seg.classList.remove('active', 'completed');
+            if (i < this.currentSlideIndex) {
+                seg.classList.add('completed');
+            } else if (i === this.currentSlideIndex) {
+                seg.classList.add('active');
+            }
+        });
+    }
 
     private getHintsOverlay(): string {
         return `
@@ -166,6 +188,7 @@ export class StoryController {
 
         fromSlideInstance.onExitStart(); // Stop internal animations immediately
         this.currentSlideIndex = toIndex;
+        this.updateProgressBar();
 
         const tl = gsap.timeline({
             onComplete: () => {
