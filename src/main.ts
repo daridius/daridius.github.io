@@ -49,8 +49,18 @@ let data: WrappedData | null = null;
 
 // 1. Try to get data from URL Params (Cloudflare KV)
 const urlParams = new URLSearchParams(window.location.search);
-const kvKey = urlParams.get('kv');
-const encKeyB64 = urlParams.get('enc');
+let kvKey = urlParams.get('kv');
+let encKeyB64 = urlParams.get('enc');
+
+// NEW: If not in query params, check the hash (fragment)
+if (!kvKey || !encKeyB64) {
+  const hash = window.location.hash.substring(1); // Remove '#'
+  if (hash.includes('kv=') && hash.includes('enc=')) {
+    const hashParams = new URLSearchParams(hash);
+    kvKey = hashParams.get('kv');
+    encKeyB64 = hashParams.get('enc');
+  }
+}
 
 if (kvKey && encKeyB64) {
   try {

@@ -124,8 +124,11 @@ export class OutroSlide extends Slide {
                     try {
                         const { kv, enc } = JSON.parse(keys);
                         const url = new URL(window.location.origin + window.location.pathname);
-                        url.searchParams.set('kv', kv);
-                        url.searchParams.set('enc', enc);
+                        // Security Update: Use hash instead of query params to prevent server logging
+                        const hashParams = new URLSearchParams();
+                        hashParams.set('kv', kv);
+                        hashParams.set('enc', enc);
+                        url.hash = hashParams.toString();
                         shareUrl = url.toString();
                     } catch (e) {
                         console.error("Error parsing shareKeys", e);
